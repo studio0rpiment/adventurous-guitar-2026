@@ -1,0 +1,33 @@
+:root {
+  --ags-bg: #0a0a0f;
+  --ags-fg: #f4f1ea;
+  --ags-accent: #e8964a;
+  --ags-muted: rgba(244, 241, 234, 0.6);
+
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: var(--ags-bg);
+  color: var(--ags-fg);
+  overflow: hidden;
+}
+
+/* The R3F canvas fills the viewport; UI floats above it. */
+canvas {
+  display: block;
+  touch-action: none;
+}
