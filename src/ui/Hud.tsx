@@ -1,5 +1,5 @@
 import { useAudio } from "@/audio/useAudio";
-import { FESTIVAL } from "@/config/festival";
+import { Logo } from "@/ui/Logo";
 
 /**
  * DOM overlay that floats above the canvas. Holds persistent chrome
@@ -21,12 +21,7 @@ export function Hud() {
         zIndex: 10,
       }}
     >
-      <div>
-        <strong style={{ letterSpacing: "0.04em" }}>{FESTIVAL.shortName}</strong>
-        <span style={{ color: "var(--ags-muted)", marginLeft: "0.5rem" }}>
-          {FESTIVAL.year}
-        </span>
-      </div>
+      <Logo size="3rem" />
 
       <button
         type="button"

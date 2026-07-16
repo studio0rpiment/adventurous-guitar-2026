@@ -1,10 +1,13 @@
 import { useAudio } from "@/audio/useAudio";
-import { FESTIVAL } from "@/config/festival";
+import { MEDIA } from "@/config/media";
+import { RiceCallout } from "@/ui/RiceCallout";
+import { EnterCue } from "@/ui/EnterCue";
 
 /**
- * Full-screen intro shown until the user interacts. The interaction that
- * dismisses it is the same gesture that unlocks audio (handled in
- * AudioProvider), so this reacts to `unlocked` state rather than a timer.
+ * Landing: the festival logo (JPEG) centered on black, with the Rice callout
+ * annotation. The first user gesture unlocks audio (AudioProvider) and this
+ * gate hides, revealing the 3D scene. The Rice link stops propagation so it
+ * opens without triggering that "enter" gesture.
  */
 export function EnterGate() {
   const { unlocked } = useAudio();
@@ -15,24 +18,41 @@ export function EnterGate() {
       style={{
         position: "fixed",
         inset: 0,
+        background: "#000000",
         display: "grid",
         placeItems: "center",
-        textAlign: "center",
-        background: "rgba(10, 10, 15, 0.85)",
         cursor: "pointer",
         zIndex: 20,
       }}
     >
-      <div>
-        <h1 style={{ margin: 0, fontSize: "clamp(2rem, 6vw, 4rem)" }}>
-          {FESTIVAL.name}
-        </h1>
-        <p style={{ color: "var(--ags-muted)", marginTop: "0.5rem" }}>
-          {FESTIVAL.tagline}
-        </p>
-        <p style={{ color: "var(--ags-accent)", marginTop: "2rem" }}>
-          Click anywhere to enter (enables sound)
-        </p>
+      <div
+        style={{
+          position: "relative",
+          aspectRatio: `${1122} / ${1402}`,
+          height: "min(85vh, 120vw)",
+          maxWidth: "96vw",
+        }}
+      >
+        <img
+          src={MEDIA.logo}
+          alt="Adventurous Electric Guitar Festival"
+          style={{ width: "100%", height: "100%", display: "block" }}
+        />
+        <RiceCallout />
+
+        {/* Enter cue nested in the pick's bottom tip. The whole gate is
+            clickable, so this is a visual affordance (pointer-events: none). */}
+        <span
+          style={{
+            position: "absolute",
+            left: `${(572 / 1122) * 100}%`,
+            top: `${(1250 / 1402) * 100}%`,
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "none",
+          }}
+        >
+          <EnterCue />
+        </span>
       </div>
     </div>
   );

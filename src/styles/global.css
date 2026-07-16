@@ -1,15 +1,83 @@
+/* ── Fonts ────────────────────────────────────────────────────────────────
+   Body: Format 1452 — single weight (400), all we have. Used site-wide.
+
+   Light & Display are RAILS ONLY right now: their tokens fall back to the body
+   face until real files land in /public/fonts. To activate one, drop the woff2
+   in, uncomment its @font-face, and repoint the matching token in :root.
+
+   Preferred path (Kevin's): a VARIABLE font. One file covers the whole weight
+   axis, so you point every token at it with a different weight value. Uncomment
+   the variable @font-face below when you have one.
+   ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Format 1452";
+  src: url("/fonts/Format_1452.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* RAIL — light face. Drop file in, uncomment, then set --font-light below.
+@font-face {
+  font-family: "AGS Light";
+  src: url("/fonts/REPLACE-light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* RAIL — heavy / display face. Drop file in, uncomment, then set --font-display.
+@font-face {
+  font-family: "AGS Display";
+  src: url("/fonts/REPLACE-display.woff2") format("woff2");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* RAIL — variable font (preferred). One file exposes the full wght axis.
+   Note the "woff2-variations" format hint and the weight RANGE.
+@font-face {
+  font-family: "AGS Variable";
+  src: url("/fonts/REPLACE-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
 :root {
+  /* Font tokens — reference these everywhere (CSS `var()` or inline styles),
+     never hard-code a family. Repoint them as real faces arrive.
+       --font-light   → "AGS Light"   (or "AGS Variable" @ light weight)
+       --font-display → "AGS Display" (or "AGS Variable" @ heavy weight) */
+  --font-body: "Format 1452", system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --font-light: var(--font-body);
+  --font-display: var(--font-body);
+
   --ags-bg: #0a0a0f;
   --ags-fg: #f4f1ea;
   --ags-accent: #e8964a;
   --ags-muted: rgba(244, 241, 234, 0.6);
 
   color-scheme: dark;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-body);
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Form controls don't inherit font-family by default — force them to. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 html,
@@ -23,6 +91,7 @@ body,
 body {
   background: var(--ags-bg);
   color: var(--ags-fg);
+  font-family: var(--font-body);
   overflow: hidden;
 }
 
@@ -30,4 +99,12 @@ body {
 canvas {
   display: block;
   touch-action: none;
+}
+
+/* ENTER cue: letters flip around the Y axis (keyframes generated per-letter in
+   EnterCue.tsx). Respect reduced-motion by holding them still. */
+@media (prefers-reduced-motion: reduce) {
+  .ags-enter-letter {
+    animation: none !important;
+  }
 }

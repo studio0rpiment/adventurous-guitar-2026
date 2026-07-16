@@ -1,6 +1,7 @@
-# Adventurous Guitar Summit
+# Adventurous Electric Guitar Festival
 
 Interactive festival site built with React Three Fiber, TypeScript, and Vite.
+October 8–9, 2026.
 
 ## Stack
 
