@@ -29,8 +29,11 @@ export function EnterGate() {
         style={{
           position: "relative",
           aspectRatio: `${1122} / ${1402}`,
-          height: "min(85vh, 120vw)",
-          maxWidth: "96vw",
+          height: "min(85svh, 122vw)",
+          maxWidth: "94vw",
+          // Container so the callout label and ENTER cue can size in cqw and
+          // scale down with the logo on small screens.
+          containerType: "inline-size",
         }}
       >
         <img

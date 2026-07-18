@@ -58,7 +58,9 @@ export function EnterCue() {
           gap: "0.12em",
           perspective: "400px", // gives the rotateY flip real 3D depth
           fontFamily: "var(--font-body)",
-          fontSize: "0.9rem",
+          // ~0.9rem on desktop; scales with the logo (cqw) so it fits the tip
+          // on small screens.
+          fontSize: "clamp(0.68rem, 2.3cqw, 0.9rem)",
           textTransform: "uppercase",
           color: "#ffffff",
         }}

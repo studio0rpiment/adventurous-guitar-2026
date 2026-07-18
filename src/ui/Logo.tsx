@@ -48,6 +48,9 @@ export function Logo({
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
       />
+      {/* Houston, TX marker. Nudged just off the coast and enlarged so it stays
+          legible at the 3rem corner size — legibility over strict accuracy. */}
+      <circle cx={455} cy={345} r={42} fill="currentColor" />
     </svg>
   );
 }

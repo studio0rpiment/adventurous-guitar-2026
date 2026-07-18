@@ -93,6 +93,18 @@ body {
   color: var(--ags-fg);
   font-family: var(--font-body);
   overflow: hidden;
+  /* Mobile hardening: no scroll-bounce, tap flash, or accidental selection
+     while dragging the 3D scene. */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Links stay selectable/interactive. */
+a {
+  -webkit-user-select: auto;
+  user-select: auto;
 }
 
 /* The R3F canvas fills the viewport; UI floats above it. */
@@ -103,8 +115,21 @@ canvas {
 
 /* ENTER cue: letters flip around the Y axis (keyframes generated per-letter in
    EnterCue.tsx). Respect reduced-motion by holding them still. */
+/* Pick menu: leader-line items fade/slide in when the fan opens. */
+@keyframes ags-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ags-enter-letter {
+  .ags-enter-letter,
+  .ags-menu-item {
     animation: none !important;
   }
 }

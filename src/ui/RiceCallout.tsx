@@ -68,7 +68,9 @@ export function RiceCallout() {
           paddingRight: "0.35rem",
           whiteSpace: "nowrap",
           fontFamily: "var(--font-body)",
-          fontSize: "0.5rem",
+          // ~0.5rem on desktop, scales down with the logo on small screens
+          // (cqw = 1% of the container/logo width) so it doesn't overflow.
+          fontSize: "clamp(0.4rem, 1.3cqw, 0.5rem)",
           letterSpacing: "0.02em",
           color: "#ffffff",
           textDecoration: "none",
