@@ -18,7 +18,7 @@ export function Hud() {
         inset: 0,
         pointerEvents: "none",
         // Respect notches/rounded corners; shrink a touch on small screens.
-        paddingTop: "calc(max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-top)) + 5px)",
+        paddingTop: "max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-top))",
         paddingRight:
           "max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-right))",
         paddingBottom:

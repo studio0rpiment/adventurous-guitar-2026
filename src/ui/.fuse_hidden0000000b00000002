@@ -66,8 +66,8 @@ export function RiceCallout() {
           position: "absolute",
           left: `${(JOIN.x / VB_W) * 100}%`,
           top: `${(JOIN.y / VB_H) * 100}%`,
-          transform: "translate(-100%, -99.0%)", // bottom text line sits on the leader line
-          paddingRight: "calc(0.4rem - 2px)",
+          transform: "translate(-100%, -99.25%)", // bottom text line sits on the leader line
+          paddingRight: "0.4rem",
           lineHeight: 0,
           pointerEvents: "auto",
         }}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 150" fill="none">
+  <title>Signal cable — segmented yellow/black cord with grey outline</title>
+  <!-- grey outline (drawn widest, underneath) -->
+  <path d="M24,42 C104,156 216,156 296,66"
+        stroke="#c7ccd2" stroke-width="13" stroke-linecap="round"/>
+  <!-- yellow body -->
+  <path d="M24,42 C104,156 216,156 296,66"
+        stroke="#d7de1f" stroke-width="9" stroke-linecap="butt"/>
+  <!-- black equal-length segments over the yellow -->
+  <path d="M24,42 C104,156 216,156 296,66"
+        stroke="#101010" stroke-width="9" stroke-linecap="butt"
+        stroke-dasharray="11 11"/>
+</svg>

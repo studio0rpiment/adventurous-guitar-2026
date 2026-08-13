@@ -18,7 +18,6 @@ export const MEDIA = {
   stageBackground: "/img/stage-background.jpg",
   stageBackgroundMobile: "/img/stage-background-mobile.jpg",
   logo: "/img/aeg-Logo.jpg",
-  shepherdLogo: "/img/Horizontal logo_New Branding_Blue.png",
 } as const;
 
 export type MediaKey = keyof typeof MEDIA;

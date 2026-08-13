@@ -30,8 +30,8 @@ const SHELF = 16; // horizontal shelf length into the label
 // Shepherd School wordmark beside the pick. Closed: horizontal, to the right of
 // the pick. Open: shrink + tuck up-left, clear of the leader-line fan. Both are
 // single tunable transforms — nudge these to taste.
-const LOGO_CLOSED = "translate(3.4rem, 0.05rem) scale(1)";
-const LOGO_OPEN = "translate(0rem, -1.65rem) scale(0.6)";
+const LOGO_CLOSED = "translate(3.4rem, 0.35rem) scale(1)";
+const LOGO_OPEN = "translate(0rem, -1.3rem) scale(0.6)";
 
 const SPOKES = ITEMS.map((it, i) => {
   const ly = TOP_Y + i * ROW;

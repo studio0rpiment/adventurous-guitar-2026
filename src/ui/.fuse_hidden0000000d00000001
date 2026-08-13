@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/ui/Logo";
-import { MEDIA } from "@/config/media";
 
 export interface MenuItem {
   id: string;
@@ -10,7 +9,7 @@ export interface MenuItem {
 const ITEMS: MenuItem[] = [
   { id: "schedule", label: "Schedule" },
   { id: "participants", label: "Participants" },
-  { id: "venue", label: "Venue" },
+  { id: "locations", label: "Locations" },
   { id: "about", label: "About" },
 ];
 
@@ -26,12 +25,6 @@ const ROW = 24; // vertical spacing between items
 const RIGHT_X = 116; // label x of the top item (furthest right)
 const X_STEP = 20; // how much each row steps left (the stagger)
 const SHELF = 16; // horizontal shelf length into the label
-
-// Shepherd School wordmark beside the pick. Closed: horizontal, to the right of
-// the pick. Open: shrink + tuck up-left, clear of the leader-line fan. Both are
-// single tunable transforms — nudge these to taste.
-const LOGO_CLOSED = "translate(3.4rem, 0.05rem) scale(1)";
-const LOGO_OPEN = "translate(0rem, -1.65rem) scale(0.6)";
 
 const SPOKES = ITEMS.map((it, i) => {
   const ly = TOP_Y + i * ROW;
@@ -52,8 +45,8 @@ const FAN_H = TOP_Y + (ITEMS.length - 1) * ROW + 30;
 /**
  * The corner pick as a navigation hub. Hover (desktop) or tap (mobile) rotates
  * the pick 90° (tip points left) and fans four leader-line routes out to the
- * right. The Shepherd School wordmark sits to the right of the pick when closed
- * and tucks up-left out of the fan's way when open. Routing fires via onSelect.
+ * right. Routing is stubbed — `onSelect` fires with the item id; wire it to
+ * real navigation once the sections exist.
  */
 export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -116,26 +109,6 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
       >
         <Logo size="3rem" />
       </button>
-
-      {/* Shepherd School wordmark — beside the pick when closed, tucked up-left
-          out of the fan's way when open. Decorative (nav is the pick + items). */}
-      <img
-        src={MEDIA.shepherdLogo}
-        alt="Shepherd School of Music at Rice"
-        aria-hidden
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          width: "clamp(4.5rem, 24vw, 7.5rem)",
-          height: "auto",
-          transformOrigin: "top left",
-          filter: "brightness(0) invert(1)",
-          pointerEvents: "none",
-          transform: open ? LOGO_OPEN : LOGO_CLOSED,
-          transition: "transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1)",
-        }}
-      />
 
       {open && (
         <div

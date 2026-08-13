@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" fill="none">
+  <title>Houston → Shepherd School of Music at Rice — technical callout</title>
+  <!-- remove this rect for a transparent overlay asset -->
+  <rect width="540" height="120" fill="#0a0a0f"/>
+  <!-- two-segment leader arm: horizontal shelf, then diagonal toward the dot,
+       stopping short of it (the gap) -->
+  <polyline points="300,40 392,40 460.6,77.7"
+            stroke="#ffffff" stroke-width="1.2"
+            stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Houston dot -->
+  <circle cx="472" cy="84" r="4" fill="#ffffff"/>
+  <!-- label -->
+  <text x="294" y="45" text-anchor="end" fill="#ffffff"
+        font-family="'Format 1452', ui-monospace, Menlo, monospace"
+        font-size="14" letter-spacing="0.4">Shepherd School of Music at Rice</text>
+</svg>

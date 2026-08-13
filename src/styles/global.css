@@ -133,3 +133,39 @@ canvas {
     animation: none !important;
   }
 }
+
+/* ── Section panels ───────────────────────────────────────────────────────
+   Pick-menu routes (Schedule, Venue, …) open as overlay panels above the
+   canvas; they fade/scale in on open. */
+@keyframes ags-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ags-panel {
+  animation: ags-panel-in 0.24s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.ags-link {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--ags-accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(232, 150, 74, 0.4);
+  padding-bottom: 1px;
+}
+.ags-link:hover {
+  border-bottom-color: var(--ags-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ags-panel {
+    animation: none !important;
+  }
+}

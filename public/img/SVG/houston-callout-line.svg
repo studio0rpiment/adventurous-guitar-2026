@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" fill="none">
+  <title>Houston callout — leader line + dot</title>
+  <!-- two-segment leader arm: horizontal shelf, then diagonal toward the dot,
+       stopping short of it (the gap) -->
+  <polyline points="12,20 104,20 172.6,57.7"
+            stroke="#ffffff" stroke-width="1.2"
+            stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Houston dot -->
+  <circle cx="184" cy="64" r="4" fill="#ffffff"/>
+</svg>
