@@ -1,23 +1,24 @@
 import { AudioProvider } from "@/audio/AudioProvider";
 import { CanvasStage } from "@/three/CanvasStage";
 import { Hud } from "@/ui/Hud";
-import { EnterGate } from "@/ui/EnterGate";
+import { Title } from "@/ui/Title";
 import { NavProvider } from "@/ui/nav";
 import { SectionOverlay } from "@/ui/SectionOverlay";
 
 /**
- * App shell. The 3D canvas is the base layer; the DOM UI (HUD, gate) and the
- * pick-menu section overlays float above it. NavProvider holds which section is
- * open; AudioProvider shares one audio context across canvas + UI.
+ * App shell. The 3D cable canvas is the base layer; the festival title, the
+ * pick-menu section overlays, and the HUD float above it. NavProvider holds
+ * which section is open; AudioProvider shares one audio context.
+ * (The old landing gate is stashed in _stash/landing/.)
  */
 export default function App() {
   return (
     <AudioProvider>
       <NavProvider>
         <CanvasStage />
+        <Title />
         <SectionOverlay />
         <Hud />
-        <EnterGate />
       </NavProvider>
     </AudioProvider>
   );
