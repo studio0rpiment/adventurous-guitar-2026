@@ -1,14 +1,15 @@
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { PatchCables } from "@/three/cable/PatchCables";
-import { SocketField } from "@/three/socket/SocketField";
+import { CableRig } from "@/three/cable/CableRig";
 import { StudioEnv } from "@/three/cable/StudioEnv";
-import { ConnectionProvider } from "@/three/connection/ConnectionContext";
 
 /**
- * Owns the R3F <Canvas>. Perspective camera; the sockets + patch cables live
- * inside the ConnectionProvider so any plug can seat into any socket. The title,
- * pick menu, and HUD remain DOM overlays above the canvas.
+ * Owns the R3F <Canvas>. Perspective camera now that the scene uses real models
+ * (the guitar-cable jack). The grabbable, physics-driven cable is the scene; the
+ * logo, PickMenu, and HUD remain DOM overlays above it.
+ *
+ * (The prior orthographic brick-field / Max-MSP metaphor — PatchField and the
+ * on-canvas MenuBricks — is held for now; those files remain but are unmounted.)
  */
 export function CanvasStage() {
   return (
@@ -23,12 +24,9 @@ export function CanvasStage() {
       <directionalLight position={[-4, 6, 6]} intensity={2.1} color="#fff4e6" />
       <directionalLight position={[5, 2, -6]} intensity={1.1} color="#7fb0ff" />
       <StudioEnv />
-      <ConnectionProvider>
-        <Suspense fallback={null}>
-          <PatchCables />
-        </Suspense>
-        <SocketField />
-      </ConnectionProvider>
+      <Suspense fallback={null}>
+        <CableRig />
+      </Suspense>
     </Canvas>
   );
 }

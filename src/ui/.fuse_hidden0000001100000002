@@ -30,7 +30,7 @@ export function Title() {
             color: "var(--ags-fg)",
             fontSize: "clamp(2.6rem, 12vw, 7rem)",
             lineHeight: 1.05,
-            letterSpacing: "0.08em",
+            letterSpacing: "0.04em",
           }}
         >
           {TITLE_LINES.map((line) => (

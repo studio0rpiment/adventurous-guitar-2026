@@ -60,7 +60,7 @@ export function stepRope(
       const dy = b.p.y - a.p.y;
       const dz = b.p.z - a.p.z;
       const d = Math.hypot(dx, dy, dz) || 1e-6;
-      const diff = (d - seg) / d;
+      const diff = (d - SEG) / d;
       const mA = a.pinned ? 0 : b.pinned ? 1 : 0.5;
       const mB = b.pinned ? 0 : a.pinned ? 1 : 0.5;
       a.p.x += dx * diff * mA;
@@ -114,30 +114,6 @@ export function createHangingRope(top: THREE.Vector3): RopePoint[] {
   for (let i = 0; i < n; i++) {
     const p = new THREE.Vector3(top.x, top.y - i * seg, top.z);
     pts.push({ p: p.clone(), prev: p.clone(), pinned: i === 0 });
-  }
-  return pts;
-}
-
-/**
- * Build a cable draped between two fixed points a and b, both ends pinned. The
- * rope is `restLen` long (pass > |a-b| so it sags); points start along a gentle
- * parabola so it drapes immediately, then gravity settles it. Pair with
- * stepRope(pts, a, b, restLen/(count-1)).
- */
-export function createDrapedRope(
-  a: THREE.Vector3,
-  b: THREE.Vector3,
-  restLen: number,
-): RopePoint[] {
-  const n = ROPE.count;
-  const d = a.distanceTo(b);
-  const sag = Math.max(0, restLen - d) * 0.5; // initial droop
-  const pts: RopePoint[] = [];
-  for (let i = 0; i < n; i++) {
-    const t = i / (n - 1);
-    const p = new THREE.Vector3().lerpVectors(a, b, t);
-    p.y -= sag * Math.sin(Math.PI * t);
-    pts.push({ p: p.clone(), prev: p.clone(), pinned: i === 0 || i === n - 1 });
   }
   return pts;
 }
