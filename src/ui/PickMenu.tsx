@@ -15,21 +15,19 @@ const ITEMS: MenuItem[] = [
 ];
 
 /* Fan geometry (px, relative to the container's top-left). Each leader is an
-   angled line from ORIGIN to a bend, then a horizontal shelf to the label —
-   the same technical-manual language as the Rice callout. Items are evenly
-   spaced vertically (ROW) with a diagonal x-stagger (X_STEP). Tune freely. */
-const TIP_X = 40; // pick tip center
+   angled line from ORIGIN to a bend, then a horizontal shelf to the label.
+   Tune freely. */
+const TIP_X = 40;
 const TIP_Y = 24;
-const START_R = 11; // leaders start on this radius around the tip (gap from it)
-const TOP_Y = 6; // y of the first (top) item
-const ROW = 24; // vertical spacing between items
-const RIGHT_X = 116; // label x of the top item (furthest right)
-const X_STEP = 20; // how much each row steps left (the stagger)
-const SHELF = 16; // horizontal shelf length into the label
+const START_R = 11;
+const TOP_Y = 6;
+const ROW = 24;
+const RIGHT_X = 116;
+const X_STEP = 20;
+const SHELF = 16;
 
-// Shepherd School wordmark beside the pick. Closed: horizontal, to the right of
-// the pick. Open: shrink + tuck up-left, clear of the leader-line fan. Both are
-// single tunable transforms — nudge these to taste.
+// Shepherd School wordmark placement: closed (right of the pick) vs open
+// (shrunk + tucked up-left, clear of the fan).
 const LOGO_CLOSED = "translate(3.4rem, 0.05rem) scale(1)";
 const LOGO_OPEN = "translate(0rem, -1.65rem) scale(0.6)";
 
@@ -37,8 +35,6 @@ const SPOKES = ITEMS.map((it, i) => {
   const ly = TOP_Y + i * ROW;
   const lx = RIGHT_X - i * X_STEP;
   const bx = lx - SHELF;
-  // Start each leader on a circle of radius START_R around the tip, aimed at
-  // its bend — detached from the pick and fanned apart.
   const dx = bx - TIP_X;
   const dy = ly - TIP_Y;
   const len = Math.hypot(dx, dy) || 1;
@@ -50,19 +46,19 @@ const FAN_W = 240;
 const FAN_H = TOP_Y + (ITEMS.length - 1) * ROW + 30;
 
 /**
- * The corner pick as a navigation hub. Hover (desktop) or tap (mobile) rotates
- * the pick 90° (tip points left) and fans four leader-line routes out to the
- * right. The Shepherd School wordmark sits to the right of the pick when closed
- * and tucks up-left out of the fan's way when open. Routing fires via onSelect.
+ * The corner pick as a navigation hub. Desktop (mouse): hover opens the fan.
+ * Touch/pen: a tap toggles it — handled per pointer-type, so a touch device
+ * never needs tap-and-hold. The Shepherd wordmark tucks up-left when open.
  */
 export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hoverCapable] = useState(
+  const [mouseMode, setMouseMode] = useState(
     () =>
       typeof window !== "undefined" &&
       window.matchMedia("(hover: hover) and (pointer: fine)").matches,
   );
+  const containerRef = useRef<HTMLDivElement>(null);
+  const lastPointer = useRef<string>("mouse");
 
   // Close on Escape or on any pointer down outside the menu (event-driven).
   useEffect(() => {
@@ -90,16 +86,28 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
     <div
       ref={containerRef}
       style={{ position: "relative", pointerEvents: "auto", width: "fit-content" }}
-      onPointerEnter={hoverCapable ? () => setOpen(true) : undefined}
-      onPointerLeave={hoverCapable ? () => setOpen(false) : undefined}
+      onPointerEnter={(e) => {
+        if (e.pointerType === "mouse") {
+          setMouseMode(true);
+          setOpen(true);
+        }
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === "mouse") setOpen(false);
+      }}
     >
       <button
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Menu"
+        onPointerDown={(e) => {
+          lastPointer.current = e.pointerType;
+          if (e.pointerType !== "mouse") setMouseMode(false);
+        }}
         onClick={() => {
-          if (!hoverCapable) setOpen((o) => !o);
+          // Mouse is driven by hover; touch/pen taps toggle open/closed.
+          if (lastPointer.current !== "mouse") setOpen((o) => !o);
         }}
         style={{
           appearance: "none",
@@ -118,7 +126,7 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
       </button>
 
       {/* Shepherd School wordmark — beside the pick when closed, tucked up-left
-          out of the fan's way when open. Decorative (nav is the pick + items). */}
+          out of the fan's way when open. Decorative. */}
       <img
         src={MEDIA.shepherdLogo}
         alt="Shepherd School of Music at Rice"
@@ -149,9 +157,9 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
             pointerEvents: "none",
           }}
         >
-          {/* Keep-alive hit area so moving from the pick to an item (across the
-              empty gaps) doesn't fire pointerleave and close the menu. */}
-          {hoverCapable && (
+          {/* Keep-alive hit area for mouse: moving from the pick to an item
+              across the gaps must not fire pointerleave. Not used on touch. */}
+          {mouseMode && (
             <div style={{ position: "absolute", inset: 0, pointerEvents: "auto" }} />
           )}
 

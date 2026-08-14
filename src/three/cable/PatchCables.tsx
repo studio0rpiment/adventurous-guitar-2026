@@ -1,8 +1,6 @@
 import { PatchCable } from "./PatchCable";
 
-// Random-ish perfect matching of the 16 sockets into 8 cable connections
-// (every socket used once). Reshuffle to re-route. Each cable starts seated in
-// its pair and can be unplugged / replugged anywhere.
+// Random-ish perfect matching of the 16 sockets into 8 cable connections.
 const PAIRS: [number, number][] = [
   [0, 11],
   [1, 8],
@@ -25,11 +23,23 @@ const COLORS = [
   "#d24ac0",
 ];
 
+// Storage hooks: a tight row on the far left where fully-unplugged cables hang.
+const STORAGE_HOOKS: [number, number, number][] = Array.from(
+  { length: PAIRS.length },
+  (_, k) => [-7.8 + k * 0.3, 3.4, 2.0] as [number, number, number],
+);
+
 export function PatchCables() {
   return (
     <>
       {PAIRS.map(([i, j], k) => (
-        <PatchCable key={k} color={COLORS[k % COLORS.length]} initialA={i} initialB={j} />
+        <PatchCable
+          key={k}
+          color={COLORS[k % COLORS.length]}
+          initialA={i}
+          initialB={j}
+          storageHook={STORAGE_HOOKS[k]}
+        />
       ))}
     </>
   );

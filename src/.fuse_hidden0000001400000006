@@ -17,10 +17,7 @@ export default function App() {
   return (
     <AudioProvider>
       <NavProvider>
-        <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
-          <CanvasStage />
-        </div>
-        <InfoSections />
+        <CanvasStage />
         {TITLE_MODE === "dom" && <Title />}
         <SectionOverlay />
         <Hud />

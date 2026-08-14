@@ -10,8 +10,16 @@ import { useConnection } from "@/three/connection/ConnectionContext";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
 const SEAT_PX = 46; // within this it seats (plugs in)
+const ARM_PX = 55; // must pull a plug out this far before it can (re)seat
 const OUTSET = 0.58 * TARGET_LEN; // how far the plug's cable-exit sits out of the socket face
 const DRAPE = 1.6; // rope length as a multiple of the initial gap
+const HIT_RADIUS = 0.32; // invisible hover tube radius (visible tube is ~0.075)
+
+// Hover sway — smoothed so it eases in as you move and eases out when you stop.
+const SWAY = 0.0035; // how strongly mouse motion feeds the sway
+const SWAY_MAX = 0.5; // clamp accumulated sway so fast moves do not fling
+const SWAY_EASE = 0.22; // fraction of accumulated sway applied per frame (ease-in)
+const SWAY_DECAY = 0.85; // per-frame decay of accumulated sway (ease-out)
 
 let SEQ = 0;
 
@@ -23,19 +31,20 @@ interface EndState {
 }
 
 /**
- * A patch cable whose two plugs can be grabbed, pulled out of a socket, dragged,
- * and re-seated into any socket — the connect/disconnect method ported from the
- * plug-scene prototype. An unplugged end hangs free. Sockets come from the
- * ConnectionProvider; `initialA`/`initialB` are the socket ids it starts seated in.
+ * A patch cable with two connectable plugs (grab -> pull out -> drag -> re-seat).
+ * Hovering the cable makes it sway with the mouse (eased). When BOTH ends are
+ * unplugged the cable docks to its storage hook on the left and hangs down.
  */
 export function PatchCable({
   color,
   initialA = null,
   initialB = null,
+  storageHook,
 }: {
   color: string;
   initialA?: number | null;
   initialB?: number | null;
+  storageHook: [number, number, number];
 }) {
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
@@ -43,15 +52,16 @@ export function PatchCable({
   const { sockets, nearestSocket, tryGrab, releaseGrab, setAligningId } = useConnection();
 
   const id = useMemo(() => `c${SEQ++}`, []);
+  const hook = useMemo(() => new THREE.Vector3(...storageHook), [storageHook]);
 
   const a0 = useMemo(() => {
     const s = initialA != null ? sockets[initialA] : null;
-    return s ? s.pos.clone().addScaledVector(s.dir, OUTSET) : new THREE.Vector3(-3, 1, 2);
-  }, [sockets, initialA]);
+    return s ? s.pos.clone().addScaledVector(s.dir, OUTSET) : hook.clone();
+  }, [sockets, initialA, hook]);
   const b0 = useMemo(() => {
     const s = initialB != null ? sockets[initialB] : null;
-    return s ? s.pos.clone().addScaledVector(s.dir, OUTSET) : new THREE.Vector3(3, 1, 2);
-  }, [sockets, initialB]);
+    return s ? s.pos.clone().addScaledVector(s.dir, OUTSET) : hook.clone().setY(hook.y - 2);
+  }, [sockets, initialB, hook]);
 
   const restLen = useMemo(() => {
     const d = a0.distanceTo(b0);
@@ -65,8 +75,14 @@ export function PatchCable({
     { plugged: initialB, aligning: -1, anchor: b0.clone(), q: new THREE.Quaternion() },
   ]);
   const grabIdx = useRef<0 | 1 | null>(null);
+  const armed = useRef(false);
+  const grabStart = useRef({ x: 0, y: 0 });
+  const docked = useRef(false);
+  const hovered = useRef(false);
+  const last = useRef({ x: 0, y: 0 });
 
   const cableRef = useRef<THREE.Mesh>(null);
+  const hitRef = useRef<THREE.Mesh>(null);
   const jackARef = useRef<THREE.Group>(null);
   const jackBRef = useRef<THREE.Group>(null);
 
@@ -82,6 +98,9 @@ export function PatchCable({
   const tan = useMemo(() => new THREE.Vector3(), []);
   const targetQ = useMemo(() => new THREE.Quaternion(), []);
   const exit = useMemo(() => new THREE.Vector3(), []);
+  const camRight = useMemo(() => new THREE.Vector3(), []);
+  const camUp = useMemo(() => new THREE.Vector3(), []);
+  const swayVel = useMemo(() => new THREE.Vector3(), []);
 
   const setNdc = (clientX: number, clientY: number) => {
     const r = gl.domElement.getBoundingClientRect();
@@ -93,16 +112,19 @@ export function PatchCable({
     e.stopPropagation();
     if (!tryGrab(`${id}-${endIdx}`)) return;
     const end = ends.current[endIdx];
-    end.plugged = null; // unplug on grab
+    end.plugged = null;
     end.aligning = -1;
+    if (endIdx === 0) docked.current = false;
     const ptIdx = endIdx === 0 ? 0 : pts.length - 1;
-    end.anchor.copy(pts[ptIdx].p); // grab from the plug's current position
+    end.anchor.copy(pts[ptIdx].p);
     camera.getWorldDirection(nrm);
     plane.setFromNormalAndCoplanarPoint(nrm, end.anchor);
     setNdc(e.nativeEvent.clientX, e.nativeEvent.clientY);
     ray.setFromCamera(ndc, camera);
     ray.ray.intersectPlane(plane, gStart);
     aStart.copy(end.anchor);
+    grabStart.current = { x: e.nativeEvent.clientX, y: e.nativeEvent.clientY };
+    armed.current = false;
     grabIdx.current = endIdx;
     gl.domElement.style.cursor = "grabbing";
   };
@@ -110,35 +132,50 @@ export function PatchCable({
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       const gi = grabIdx.current;
-      if (gi === null) return;
-      const end = ends.current[gi];
-      setNdc(e.clientX, e.clientY);
-      ray.setFromCamera(ndc, camera);
-      if (ray.ray.intersectPlane(plane, hit)) end.anchor.copy(aStart).add(hit.sub(gStart));
-      // phase 1: align to the nearest socket; phase 2: seat when moved onto it
-      const near = nearestSocket(e.clientX, e.clientY, camera, size.width, size.height, ALIGN_PX);
-      end.aligning = near;
-      setAligningId(near >= 0 ? near : null);
-      if (near >= 0) {
-        const s = sockets[near];
-        proj.copy(s.pos).project(camera);
-        const sx = (proj.x * 0.5 + 0.5) * size.width;
-        const sy = (-proj.y * 0.5 + 0.5) * size.height;
-        if (Math.hypot(sx - e.clientX, sy - e.clientY) < SEAT_PX) {
-          end.plugged = near;
-          end.anchor.copy(s.pos).addScaledVector(s.dir, OUTSET);
-          end.aligning = -1;
-          releaseGrab(`${id}-${gi}`);
-          grabIdx.current = null;
-          setAligningId(null);
-          gl.domElement.style.cursor = "default";
+      if (gi !== null) {
+        const end = ends.current[gi];
+        setNdc(e.clientX, e.clientY);
+        ray.setFromCamera(ndc, camera);
+        if (ray.ray.intersectPlane(plane, hit)) end.anchor.copy(aStart).add(hit.sub(gStart));
+        if (!armed.current) {
+          const dd = Math.hypot(e.clientX - grabStart.current.x, e.clientY - grabStart.current.y);
+          if (dd > ARM_PX) armed.current = true;
+        }
+        const near = nearestSocket(e.clientX, e.clientY, camera, size.width, size.height, ALIGN_PX);
+        end.aligning = near;
+        setAligningId(near >= 0 ? near : null);
+        if (armed.current && near >= 0) {
+          const s = sockets[near];
+          proj.copy(s.pos).project(camera);
+          const sx = (proj.x * 0.5 + 0.5) * size.width;
+          const sy = (-proj.y * 0.5 + 0.5) * size.height;
+          if (Math.hypot(sx - e.clientX, sy - e.clientY) < SEAT_PX) {
+            end.plugged = near;
+            end.anchor.copy(s.pos).addScaledVector(s.dir, OUTSET);
+            end.aligning = -1;
+            releaseGrab(`${id}-${gi}`);
+            grabIdx.current = null;
+            setAligningId(null);
+            gl.domElement.style.cursor = "default";
+          }
+        }
+      } else if (hovered.current) {
+        const dx = e.clientX - last.current.x;
+        const dy = e.clientY - last.current.y;
+        if (dx || dy) {
+          camRight.set(1, 0, 0).applyQuaternion(camera.quaternion);
+          camUp.set(0, 1, 0).applyQuaternion(camera.quaternion);
+          swayVel.addScaledVector(camRight, dx * SWAY).addScaledVector(camUp, -dy * SWAY);
+          const m = swayVel.length();
+          if (m > SWAY_MAX) swayVel.multiplyScalar(SWAY_MAX / m);
         }
       }
+      last.current = { x: e.clientX, y: e.clientY };
     };
     const onUp = () => {
       const gi = grabIdx.current;
       if (gi === null) return;
-      ends.current[gi].aligning = -1; // if not seated, the end goes free and falls
+      ends.current[gi].aligning = -1;
       releaseGrab(`${id}-${gi}`);
       grabIdx.current = null;
       setAligningId(null);
@@ -172,10 +209,30 @@ export function PatchCable({
   };
 
   useFrame(() => {
-    const last = pts.length - 1;
-    pts[0].pinned = grabIdx.current === 0 || ends.current[0].plugged !== null;
-    pts[last].pinned = grabIdx.current === 1 || ends.current[1].plugged !== null;
-    stepRope(pts, ends.current[0].anchor, ends.current[1].anchor, seg);
+    const lastI = pts.length - 1;
+    const e0 = ends.current[0];
+    const e1 = ends.current[1];
+
+    if (grabIdx.current === 0 || e0.plugged !== null) docked.current = false;
+    else if (e0.plugged === null && e1.plugged === null && grabIdx.current === null) docked.current = true;
+
+    pts[0].pinned = grabIdx.current === 0 || e0.plugged !== null || docked.current;
+    pts[lastI].pinned = grabIdx.current === 1 || e1.plugged !== null;
+    if (docked.current && grabIdx.current !== 0 && e0.plugged === null) e0.anchor.copy(hook);
+
+    // eased hover sway: apply a fraction of the accumulated motion, then decay it
+    if (swayVel.lengthSq() > 1e-9) {
+      const n = pts.length;
+      for (let i = 1; i < n - 1; i++) {
+        if (pts[i].pinned) continue;
+        const w = Math.sin((Math.PI * i) / (n - 1));
+        pts[i].p.addScaledVector(swayVel, SWAY_EASE * w);
+      }
+      swayVel.multiplyScalar(SWAY_DECAY);
+    }
+
+    stepRope(pts, e0.anchor, e1.anchor, seg);
+
     const mesh = cableRef.current;
     if (mesh) {
       const curve = new THREE.CatmullRomCurve3(
@@ -187,23 +244,36 @@ export function PatchCable({
       const geo = new THREE.TubeGeometry(curve, ROPE.tubeSegments, ROPE.radius, ROPE.tubeRadial, false);
       mesh.geometry.dispose();
       mesh.geometry = geo;
+      const hm = hitRef.current;
+      if (hm) {
+        const hgeo = new THREE.TubeGeometry(curve, ROPE.tubeSegments, HIT_RADIUS, 6, false);
+        hm.geometry.dispose();
+        hm.geometry = hgeo;
+      }
     }
-    placeJack(jackARef.current, ends.current[0], 0, 1);
-    placeJack(jackBRef.current, ends.current[1], last, last - 1);
+    placeJack(jackARef.current, e0, 0, 1);
+    placeJack(jackBRef.current, e1, lastI, lastI - 1);
   });
 
-  const onOver = () => {
+  const plugOver = () => {
     if (grabIdx.current === null) gl.domElement.style.cursor = "grab";
   };
-  const onOut = () => {
+  const plugOut = () => {
     if (grabIdx.current === null) gl.domElement.style.cursor = "default";
+  };
+  const cableOver = (e: ThreeEvent<PointerEvent>) => {
+    hovered.current = true;
+    last.current = { x: e.clientX, y: e.clientY };
+  };
+  const cableOut = () => {
+    hovered.current = false;
   };
 
   return (
     <group>
-      <Cable ref={cableRef} color={color} />
-      <JackPlug ref={jackARef} onPointerDown={beginGrab(0)} onPointerOver={onOver} onPointerOut={onOut} />
-      <JackPlug ref={jackBRef} onPointerDown={beginGrab(1)} onPointerOver={onOver} onPointerOut={onOut} />
+      <Cable ref={cableRef} hitRef={hitRef} color={color} onPointerOver={cableOver} onPointerOut={cableOut} />
+      <JackPlug ref={jackARef} onPointerDown={beginGrab(0)} onPointerOver={plugOver} onPointerOut={plugOut} />
+      <JackPlug ref={jackBRef} onPointerDown={beginGrab(1)} onPointerOver={plugOver} onPointerOut={plugOut} />
     </group>
   );
 }

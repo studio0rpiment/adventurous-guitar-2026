@@ -5,8 +5,6 @@ import { SocketField } from "@/three/socket/SocketField";
 import { StudioEnv } from "@/three/cable/StudioEnv";
 import { ConnectionProvider } from "@/three/connection/ConnectionContext";
 import { ResponsiveCamera } from "@/three/ResponsiveCamera";
-import { TitleText3D } from "@/three/TitleText3D";
-import { TITLE_MODE } from "@/config/ui";
 
 /**
  * Owns the R3F <Canvas>. A ResponsiveCamera keeps the composition framed across
@@ -27,11 +25,6 @@ export function CanvasStage() {
       <directionalLight position={[-4, 6, 6]} intensity={2.1} color="#fff4e6" />
       <directionalLight position={[5, 2, -6]} intensity={1.1} color="#7fb0ff" />
       <StudioEnv />
-      {TITLE_MODE === "3d" && (
-        <Suspense fallback={null}>
-          <TitleText3D />
-        </Suspense>
-      )}
       <ConnectionProvider>
         <Suspense fallback={null}>
           <PatchCables />

@@ -41,7 +41,7 @@ export function Title() {
         </h1>
         <div
           style={{
-            marginTop: "1.6rem",
+            marginTop: "0.7rem",
             fontFamily: "var(--font-body)",
             textTransform: "uppercase",
             color: "var(--ags-muted)",

@@ -92,8 +92,7 @@ body {
   background: var(--ags-bg);
   color: var(--ags-fg);
   font-family: var(--font-body);
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   /* Mobile hardening: no scroll-bounce, tap flash, or accidental selection
      while dragging the 3D scene. */
   overscroll-behavior: none;
@@ -177,47 +176,4 @@ canvas {
   .ags-hud {
     padding-top: calc(env(safe-area-inset-top) + 2rem) !important;
   }
-}
-
-/* ── Scrollable page ──────────────────────────────────────────────────────
-   The 3D hero stays fixed behind; the info content scrolls up over it. */
-#root {
-  height: auto;
-  min-height: 100%;
-}
-
-.ags-hero-spacer {
-  height: 100svh;
-}
-/* Desktop: let the canvas stay interactive (wheel still scrolls the page). */
-@media (hover: hover) {
-  .ags-hero-spacer { pointer-events: none; }
-}
-/* Touch: the spacer captures the swipe so the page can scroll. */
-@media (hover: none) {
-  .ags-hero-spacer { pointer-events: auto; touch-action: pan-y; }
-}
-
-.ags-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(2rem, 5vw, 4rem);
-  max-width: 72rem;
-  margin: 0 auto;
-  user-select: text;
-}
-@media (max-width: 768px) {
-  .ags-info-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.ags-info-h {
-  margin: 0 0 1rem;
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: clamp(1.1rem, 4vw, 1.5rem);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ags-fg);
 }

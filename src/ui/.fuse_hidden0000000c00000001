@@ -13,7 +13,6 @@ export function Hud() {
 
   return (
     <div
-      className="ags-hud"
       style={{
         position: "fixed",
         inset: 0,

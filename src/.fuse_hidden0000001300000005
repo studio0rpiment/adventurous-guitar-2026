@@ -5,7 +5,6 @@ import { Title } from "@/ui/Title";
 import { NavProvider } from "@/ui/nav";
 import { SectionOverlay } from "@/ui/SectionOverlay";
 import { TITLE_MODE } from "@/config/ui";
-import { InfoSections } from "@/ui/InfoSections";
 
 /**
  * App shell. The 3D cable canvas is the base layer; the festival title, the
@@ -17,10 +16,7 @@ export default function App() {
   return (
     <AudioProvider>
       <NavProvider>
-        <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
-          <CanvasStage />
-        </div>
-        <InfoSections />
+        <CanvasStage />
         {TITLE_MODE === "dom" && <Title />}
         <SectionOverlay />
         <Hud />

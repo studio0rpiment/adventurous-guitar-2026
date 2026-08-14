@@ -27,11 +27,6 @@ export function CanvasStage() {
       <directionalLight position={[-4, 6, 6]} intensity={2.1} color="#fff4e6" />
       <directionalLight position={[5, 2, -6]} intensity={1.1} color="#7fb0ff" />
       <StudioEnv />
-      {TITLE_MODE === "3d" && (
-        <Suspense fallback={null}>
-          <TitleText3D />
-        </Suspense>
-      )}
       <ConnectionProvider>
         <Suspense fallback={null}>
           <PatchCables />
