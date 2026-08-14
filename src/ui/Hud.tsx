@@ -1,14 +1,11 @@
-import { useAudio } from "@/audio/useAudio";
 import { useNav } from "@/ui/nav";
 import { PickMenu } from "@/ui/PickMenu";
 
 /**
- * DOM overlay that floats above the canvas. Holds persistent chrome
- * (pick-menu nav, sound toggle). Menu selections open section overlays via
- * nav state.
+ * DOM overlay above the canvas: the pick-menu nav. Menu selections open section
+ * overlays via nav state. (Sound toggle removed — no audio yet.)
  */
 export function Hud() {
-  const { muted, toggleMute, unlocked } = useAudio();
   const { open } = useNav();
 
   return (
@@ -18,8 +15,8 @@ export function Hud() {
         position: "fixed",
         inset: 0,
         pointerEvents: "none",
-        // Respect notches/rounded corners; shrink a touch on small screens.
-        paddingTop: "calc(max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-top)) + 5px)",
+        paddingTop:
+          "calc(max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-top)) + 5px)",
         paddingRight:
           "max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-right))",
         paddingBottom:
@@ -27,37 +24,12 @@ export function Hud() {
         paddingLeft:
           "max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-left))",
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "flex-start",
         alignItems: "flex-start",
-        gap: "0.75rem",
         zIndex: 10,
       }}
     >
       <PickMenu onSelect={open} />
-
-      <button
-        type="button"
-        onClick={toggleMute}
-        disabled={!unlocked}
-        style={{
-          pointerEvents: "auto",
-          display: "inline-flex",
-          alignItems: "center",
-          minHeight: "2.75rem", // ~44px touch target
-          background: "transparent",
-          color: "var(--ags-fg)",
-          border: "1px solid var(--ags-muted)",
-          borderRadius: "999px",
-          padding: "0.5rem 1rem",
-          fontSize: "clamp(0.8rem, 3.5vw, 0.95rem)",
-          whiteSpace: "nowrap",
-          cursor: unlocked ? "pointer" : "not-allowed",
-          opacity: unlocked ? 1 : 0.5,
-          WebkitTapHighlightColor: "transparent",
-        }}
-      >
-        {muted ? "Sound off" : "Sound on"}
-      </button>
     </div>
   );
 }
