@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { Cable } from "./Cable";
 import { JackPlug } from "./JackPlug";
 import { createHangingRope, stepRope } from "./verlet";
-import { EXIT_LOCAL, HANG_TOP, JACK_AXIS, ROPE } from "./constants";
+import { END_A, END_B, EXIT_LOCAL, HOOK, JACK_AXIS, ROPE } from "./constants";
 
 type End = "A" | "B";
 
@@ -19,9 +19,9 @@ export function CableRig() {
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
 
-  const pts = useMemo(() => createHangingRope(HANG_TOP), []);
-  const anchorA = useRef(HANG_TOP.clone());
-  const anchorB = useRef(HANG_TOP.clone());
+  const pts = useMemo(() => createHungRope(END_A, HOOK, END_B), []);
+  const anchorA = useRef(END_A.clone());
+  const anchorB = useRef(END_B.clone());
 
   const cableRef = useRef<THREE.Mesh>(null);
   const jackARef = useRef<THREE.Group>(null);

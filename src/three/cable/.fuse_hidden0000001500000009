@@ -21,7 +21,7 @@ export function CableRig() {
 
   const pts = useMemo(() => createHangingRope(HANG_TOP), []);
   const anchorA = useRef(HANG_TOP.clone());
-  const anchorB = useRef(HANG_TOP.clone());
+  const anchorB = useRef(END_B.clone());
 
   const cableRef = useRef<THREE.Mesh>(null);
   const jackARef = useRef<THREE.Group>(null);

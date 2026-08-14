@@ -43,14 +43,10 @@ export function stepRope(
     q.p.y += vy + ROPE.gravity;
     q.p.z += vz;
   }
-  if (pts[0].pinned) {
-    pts[0].p.copy(anchorA);
-    pts[0].prev.copy(anchorA);
-  }
-  if (pts[n - 1].pinned) {
-    pts[n - 1].p.copy(anchorB);
-    pts[n - 1].prev.copy(anchorB);
-  }
+  pts[0].p.copy(anchorA);
+  pts[0].prev.copy(anchorA);
+  pts[n - 1].p.copy(anchorB);
+  pts[n - 1].prev.copy(anchorB);
   for (let k = 0; k < ROPE.iterations; k++) {
     for (let i = 0; i < n - 1; i++) {
       const a = pts[i];
@@ -96,23 +92,6 @@ export function createHungRope(
       prev: p.clone(),
       pinned: i === 0 || i === n - 1 || i === mid,
     });
-  }
-  return pts;
-}
-
-/**
- * Build a cable hung by its top plug: only the first point is pinned (at `top`),
- * and the points start on a straight vertical line below it. Under gravity it
- * settles hanging straight down with the lower plug dangling free — the way a
- * short cable is stored on a single hook.
- */
-export function createHangingRope(top: THREE.Vector3): RopePoint[] {
-  const n = ROPE.count;
-  const seg = ROPE.restTotal / (n - 1);
-  const pts: RopePoint[] = [];
-  for (let i = 0; i < n; i++) {
-    const p = new THREE.Vector3(top.x, top.y - i * seg, top.z);
-    pts.push({ p: p.clone(), prev: p.clone(), pinned: i === 0 });
   }
   return pts;
 }
