@@ -96,24 +96,6 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
         if (e.pointerType === "mouse") setOpen(false);
       }}
     >
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          left: "-0.5rem",
-          top: "-0.4rem",
-          width: "calc(3.9rem + clamp(4.5rem, 24vw, 7.5rem))",
-          height: "3.9rem",
-          background: "rgba(0, 0, 0, 0.72)",
-          backdropFilter: "blur(3px)",
-          WebkitBackdropFilter: "blur(3px)",
-          borderRadius: "0.6rem",
-          pointerEvents: "none",
-          opacity: open ? 0 : 1,
-          transition: "opacity 0.3s ease",
-        }}
-      />
-
       <button
         type="button"
         aria-haspopup="menu"

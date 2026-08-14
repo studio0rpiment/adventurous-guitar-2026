@@ -221,3 +221,12 @@ canvas {
   text-transform: uppercase;
   color: var(--ags-fg);
 }
+
+/* Island field: pass pointer through to the cables on desktop; capture the
+   swipe so the page scrolls on touch. */
+@media (hover: hover) {
+  .ags-island-field { pointer-events: none; }
+}
+@media (hover: none) {
+  .ags-island-field { pointer-events: auto; touch-action: pan-y; }
+}
