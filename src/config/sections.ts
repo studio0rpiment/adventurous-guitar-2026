@@ -137,8 +137,9 @@ export const SCHEDULE: ScheduleDay[] = [
           {
             time: "9 PM–12:30 AM",
             title: "Late show",
-            performers: "Brad Allen Williams, Kelly Doyle, Aurum Son",
-            note: "$10 suggested donation. No one turned away.",
+            // Set order confirmed by Chapman, Aug 14.
+            performers: "Brad Allen Williams · Kelly Doyle · Aurum Son",
+            note: "Brad Allen Williams opens, Kelly Doyle second, Aurum Son closes. $10 suggested donation. No one turned away.",
             kind: "performance",
           },
         ],

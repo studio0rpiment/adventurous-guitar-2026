@@ -10,7 +10,7 @@ const FS = 1.2; // title line size (world units)
 const LINE = 1.7; // vertical gap between title lines (leading)
 const DATE_FS = 0.58;
 const DATE_GAP = 1.3; // gap from last title line down to the date
-const CY = 0.4; // vertical centre of the lockup at scroll 0
+const CY = -0.8; // vertical centre of the lockup at scroll 0 (lower = sits further down)
 const Z = 6.5; // in front of the cables so it floats on top
 const RISE = 9; // world units the lockup rises over one viewport of scroll
 

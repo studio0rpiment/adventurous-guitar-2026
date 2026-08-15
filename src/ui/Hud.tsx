@@ -15,8 +15,10 @@ export function Hud() {
         position: "fixed",
         inset: 0,
         pointerEvents: "none",
+        // +2svh of breathing room off the very top edge, on top of the safe-area
+        // inset. Mirrored in the small-screen .ags-hud rule in global.css.
         paddingTop:
-          "calc(max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-top)) + 5px)",
+          "calc(max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-top)) + 5px + 1svh)",
         paddingRight:
           "max(clamp(0.9rem, 3vw, 1.5rem), env(safe-area-inset-right))",
         paddingBottom:

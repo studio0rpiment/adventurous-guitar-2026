@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { SCHEDULE, ONGOING } from "@/config/sections";
 import { Island } from "./Island";
+import { FloatingIsland, type IslandAlign } from "./FloatingIsland";
 
 type Spec = { id: string; top?: string; title: string; sub?: string; note?: string };
 
@@ -26,11 +28,20 @@ function buildSpecs(): Spec[] {
 }
 
 const SPECS = buildSpecs();
-const ALIGN: ("flex-start" | "center" | "flex-end")[] = ["flex-start", "flex-end", "center"];
+const ALIGN: IslandAlign[] = ["flex-start", "flex-end", "center"];
 const ROT = [-3, 2.5, -1.5, 3, -2, 1.5];
 
-/** The scroll stream of floating event islands. */
+/**
+ * The scroll stream of floating event islands.
+ *
+ * Owns one piece of state: which island the reader last touched, so it can be
+ * lifted clear of its neighbours. Sizing/overlap live in CSS custom properties
+ * (see .ags-island-field in global.css) so the phone layout can spread out
+ * without duplicating the layout logic here.
+ */
 export function IslandField() {
+  const [raisedId, setRaisedId] = useState<string | null>(null);
+
   return (
     <div
       className="ags-island-field"
@@ -42,18 +53,17 @@ export function IslandField() {
       }}
     >
       {SPECS.map((s, i) => (
-        <div
+        <FloatingIsland
           key={s.id}
-          style={{
-            alignSelf: ALIGN[i % ALIGN.length],
-            marginTop: i === 0 ? 0 : "-12svh",
-            width: "min(72vw, 26rem)",
-            transform: `rotate(${ROT[i % ROT.length]}deg)`,
-            filter: "drop-shadow(0 12px 34px rgba(0, 0, 0, 0.65))",
-          }}
+          index={i}
+          align={ALIGN[i % ALIGN.length]}
+          rotate={ROT[i % ROT.length]}
+          raised={raisedId === s.id}
+          onRaise={() => setRaisedId(s.id)}
+          label={s.title}
         >
           <Island {...s} />
-        </div>
+        </FloatingIsland>
       ))}
     </div>
   );

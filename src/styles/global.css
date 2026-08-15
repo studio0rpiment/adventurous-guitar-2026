@@ -175,7 +175,7 @@ canvas {
    HUD extra top room (below the notch / browser chrome) on small screens. */
 @media (max-width: 640px) {
   .ags-hud {
-    padding-top: calc(env(safe-area-inset-top) + 2rem) !important;
+    padding-top: calc(env(safe-area-inset-top) + 2rem + 1svh) !important;
   }
 }
 
@@ -223,10 +223,41 @@ canvas {
 }
 
 /* Island field: pass pointer through to the cables on desktop; capture the
-   swipe so the page scrolls on touch. */
+   swipe so the page scrolls on touch. Individual islands re-enable pointer
+   events on themselves (see FloatingIsland) so they stay tappable either way. */
 @media (hover: hover) {
   .ags-island-field { pointer-events: none; }
 }
 @media (hover: none) {
   .ags-island-field { pointer-events: auto; touch-action: pan-y; }
+}
+
+/* Island layout knobs. The negative overlap is what gives the stream its
+   stacked, drifting look on a wide screen — but on a phone the islands are
+   nearly as wide as the viewport, so the alternating left/right alignment
+   can't separate them and they pile up. Narrower cards + far less overlap on
+   small screens. Read by FloatingIsland's inline styles. */
+.ags-island-field {
+  --ags-island-w: min(72vw, 26rem);
+  --ags-island-overlap: -12svh;
+}
+@media (max-width: 768px) {
+  .ags-island-field {
+    --ags-island-w: min(66vw, 20rem);
+    --ags-island-overlap: -3svh;
+  }
+}
+@media (max-width: 480px) {
+  .ags-island-field {
+    --ags-island-w: 70vw;
+    --ags-island-overlap: 1svh; /* positive: a real gap, no overlap at all */
+  }
+}
+
+/* The island is a role=button; keep the focus ring visible for keyboard users
+   but off for pointer taps. */
+.ags-island:focus-visible {
+  outline: 1px solid var(--ags-accent);
+  outline-offset: 6px;
+  border-radius: 1rem;
 }

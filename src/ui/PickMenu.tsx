@@ -14,17 +14,28 @@ const ITEMS: MenuItem[] = [
   { id: "about", label: "About" },
 ];
 
+/* Overall size of the pick + fan. Everything below is expressed in base units
+   and multiplied by S, so nudging the hub's scale is a one-number change.
+   1.157625 = three 5% bumps up from the original 1.0. */
+const S = 1.157625;
+
 /* Fan geometry (px, relative to the container's top-left). Each leader is an
    angled line from ORIGIN to a bend, then a horizontal shelf to the label.
    Tune freely. */
-const TIP_X = 40;
-const TIP_Y = 24;
-const START_R = 11;
-const TOP_Y = 6;
-const ROW = 24;
-const RIGHT_X = 116;
-const X_STEP = 20;
-const SHELF = 16;
+const TIP_X = 40 * S;
+const TIP_Y = 24 * S;
+const START_R = 11 * S;
+const TOP_Y = 6 * S;
+const ROW = 24 * S;
+const RIGHT_X = 116 * S;
+const X_STEP = 20 * S;
+const SHELF = 16 * S;
+
+/* Pick, wordmark and label sizes — same scale factor. */
+const PICK_SIZE = `${3 * S}rem`;
+const PLATE_H = `${3.9 * S}rem`;
+const WORDMARK_W = `clamp(${4.5 * S}rem, ${24 * S}vw, ${7.5 * S}rem)`;
+const LABEL_SIZE = `clamp(${0.5 * S}rem, ${2.1 * S}vw, ${0.6 * S}rem)`;
 
 // Shepherd School wordmark placement: closed (right of the pick) vs open
 // (shrunk + tucked up-left, clear of the fan).
@@ -42,8 +53,8 @@ const SPOKES = ITEMS.map((it, i) => {
   const sy = TIP_Y + (dy / len) * START_R;
   return { ...it, lx, ly, bx, sx, sy };
 });
-const FAN_W = 240;
-const FAN_H = TOP_Y + (ITEMS.length - 1) * ROW + 30;
+const FAN_W = 240 * S;
+const FAN_H = TOP_Y + (ITEMS.length - 1) * ROW + 30 * S;
 
 /**
  * The corner pick as a navigation hub. Desktop (mouse): hover opens the fan.
@@ -102,8 +113,8 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
           position: "absolute",
           left: "-0.5rem",
           top: "-0.4rem",
-          width: "calc(3.9rem + clamp(4.5rem, 24vw, 7.5rem))",
-          height: "3.9rem",
+          width: `calc(${PLATE_H} + ${WORDMARK_W})`,
+          height: PLATE_H,
           background: "rgba(0, 0, 0, 0.72)",
           backdropFilter: "blur(3px)",
           WebkitBackdropFilter: "blur(3px)",
@@ -140,7 +151,7 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
           WebkitTapHighlightColor: "transparent",
         }}
       >
-        <Logo size="3rem" />
+        <Logo size={PICK_SIZE} />
       </button>
 
       {/* Shepherd School wordmark — beside the pick when closed, tucked up-left
@@ -153,7 +164,7 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
           position: "absolute",
           left: 0,
           top: 0,
-          width: "clamp(4.5rem, 24vw, 7.5rem)",
+          width: WORDMARK_W,
           height: "auto",
           transformOrigin: "top left",
           filter: "brightness(0) invert(1)",
@@ -227,7 +238,7 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
                 whiteSpace: "nowrap",
                 cursor: "pointer",
                 fontFamily: "var(--font-body)",
-                fontSize: "clamp(0.5rem, 2.1vw, 0.6rem)",
+                fontSize: LABEL_SIZE,
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 color: "#ffffff",
