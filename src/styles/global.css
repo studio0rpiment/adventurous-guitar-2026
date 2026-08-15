@@ -189,6 +189,14 @@ canvas {
 .ags-hero-spacer {
   height: 100svh;
 }
+
+/* Empty scroll runway after the last island. One viewport clears the islands
+   out of the top; the rest is the distance CameraPan has to descend to the
+   floor. Longer = slower, calmer reveal. */
+.ags-reveal-spacer {
+  height: 200svh;
+  pointer-events: none;
+}
 /* Desktop: let the canvas stay interactive (wheel still scrolls the page). */
 @media (hover: hover) {
   .ags-hero-spacer { pointer-events: none; }
@@ -260,4 +268,38 @@ canvas {
   outline: 1px solid var(--ags-accent);
   outline-offset: 6px;
   border-radius: 1rem;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────
+   The presenting-school mark, pinned to the bottom of the viewport and faded
+   in by Footer.tsx over the last of the scroll. The supplied PNG is navy on
+   transparent, which would vanish against #0a0a0f — brightness(0) crushes the
+   artwork to black and invert(1) flips it to white, keeping the alpha intact.
+   Swap the filter out if a white-artwork asset turns up. */
+.ags-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom) + clamp(1.2rem, 4vh, 2.6rem));
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+.ags-footer img {
+  width: clamp(11rem, 26vw, 20rem);
+  height: auto;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.82;
+}
+.ags-footer a:hover img {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ags-footer {
+    transition: none !important;
+  }
 }

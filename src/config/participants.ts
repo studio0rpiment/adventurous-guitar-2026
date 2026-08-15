@@ -38,6 +38,15 @@ export interface ParticipantLink {
   url: string;
 }
 
+/** A player inside a group entry (Aurum Son's band, Kelly's trio, …). Kept
+ *  nested rather than promoted to top-level participants so the roster stays
+ *  Chapman's billing, while individual bios still have somewhere to live. */
+export interface EnsembleMember {
+  name: string;
+  role?: string;
+  bio?: string;
+}
+
 export interface Participant {
   id: string;
   name: string;
@@ -49,6 +58,8 @@ export interface Participant {
   /** Absent until a photo arrives; drop files in /public/img/participants/. */
   image?: string;
   links?: ParticipantLink[];
+  /** Players within a group entry. */
+  members?: EnsembleMember[];
   /** Extra strings to match against schedule performer lists. */
   aliases?: string[];
 }
@@ -90,6 +101,20 @@ export const PARTICIPANTS: Participant[] = [
       { label: "“The Western Lands”", url: "https://youtu.be/EEoR8BFEy8E" },
       { label: "Bandcamp", url: "https://aurumson.bandcamp.com/" },
       { label: "Instagram", url: "https://instagram.com/aurum.son" },
+    ],
+    members: [
+      {
+        name: "Jesse Ward",
+        role: "Guitar",
+        bio: "Jesse Ward is a versatile multi-instrumentalist and composer who brings together jazz, world, and improvised music with a focus on deep listening and genuine expression. Drawing inspiration from a wide range of musical traditions and spontaneous collaboration, Ward aims to make music that feels magical, unpredictable and alive — creating spaces where musicians and listeners can meet in the moment and share in something unrepeatable and real. Ward is a graduate of Houston's High School for the Performing and Visual Arts and The New England Conservatory.",
+      },
+      {
+        name: "Greg Jr. Brown",
+        role: "Drums",
+        // Trimmed for the card — full text in Chapman's bios doc / Sonia's email.
+        bio: "Greg Jr Brown is a Houston musician raised in Humble, TX. He began singing and dancing as a child — jazz, ballet, hiphop — and was active in symphonic and marching bands including the City Wide Drum-line on tenor drum and quads. A talented all-brass player, he earned top solo and ensemble medals in Texas (UIL) and Oregon (PIL), and during his time in Oregon was invited into AMP, one of Portland's top symphonic bands, which led to the Portland Symphony. He formed his own band with school peers by 15. Back in Houston he plays regularly in church services, and his versatility across rock, reggae, gospel, avant garde, americana, country and blues has built a long list of collaborators including John Del Toro Richardson, Mark May, Annika Chambers, Aurum Son, Kristine Alicia and Rick Lee & The Nightowls. He has been a member and musical director of a Grammy award winning band, and is currently house drummer at the Big Easy Social Club.",
+      },
+      { name: "Yul Dorn", role: "Drums" },
     ],
     aliases: ["Sonia Flores"],
   },

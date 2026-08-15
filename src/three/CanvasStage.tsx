@@ -5,7 +5,9 @@ import { SocketField } from "@/three/socket/SocketField";
 import { StudioEnv } from "@/three/cable/StudioEnv";
 import { ConnectionProvider } from "@/three/connection/ConnectionContext";
 import { ResponsiveCamera } from "@/three/ResponsiveCamera";
+import { CameraPan } from "@/three/CameraPan";
 import { TitleText3D } from "@/three/TitleText3D";
+import { FloorGuitar } from "@/three/guitar/FloorGuitar";
 import { TITLE_MODE } from "@/config/ui";
 
 /**
@@ -22,6 +24,7 @@ export function CanvasStage() {
       gl={{ antialias: true }}
     >
       <ResponsiveCamera />
+      <CameraPan />
       <color attach="background" args={["#0a0a0f"]} />
       <hemisphereLight args={["#8a97ad", "#0c0d12", 0.55]} />
       <directionalLight position={[-4, 6, 6]} intensity={2.1} color="#fff4e6" />
@@ -32,6 +35,9 @@ export function CanvasStage() {
           <TitleText3D />
         </Suspense>
       )}
+      {/* Lies on the floor at the bottom of the scroll; mounts itself lazily. */}
+      <FloorGuitar />
+
       <ConnectionProvider>
         <Suspense fallback={null}>
           <PatchCables />

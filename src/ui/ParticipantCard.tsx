@@ -16,7 +16,7 @@ function initials(name: string): string {
  * this stays presentational — same split as SlotRow / SchedulePanel.
  */
 export function ParticipantCard({ participant }: { participant: Participant }) {
-  const { name, role, bio, image, links } = participant;
+  const { name, role, bio, image, links, members } = participant;
   const appearances = participantAppearances(participant);
 
   return (
@@ -87,6 +87,39 @@ export function ParticipantCard({ participant }: { participant: Participant }) {
           >
             Bio to come.
           </p>
+        )}
+
+        {members && members.length > 0 && (
+          <ul style={{ listStyle: "none", margin: "0.7rem 0 0", padding: 0 }}>
+            {members.map((m) => (
+              <li
+                key={m.name}
+                style={{
+                  marginTop: "0.5rem",
+                  paddingLeft: "0.7rem",
+                  borderLeft: "1px solid rgba(244, 241, 234, 0.18)",
+                }}
+              >
+                <span style={{ fontSize: "0.8rem", color: "var(--ags-fg)" }}>{m.name}</span>
+                {m.role && (
+                  <span style={{ fontSize: "0.72rem", color: "var(--ags-muted)" }}> — {m.role}</span>
+                )}
+                {m.bio && (
+                  <p
+                    style={{
+                      margin: "0.2rem 0 0",
+                      fontSize: "0.74rem",
+                      lineHeight: 1.5,
+                      color: "var(--ags-fg)",
+                      opacity: 0.8,
+                    }}
+                  >
+                    {m.bio}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
 
         {appearances.length > 0 && (
