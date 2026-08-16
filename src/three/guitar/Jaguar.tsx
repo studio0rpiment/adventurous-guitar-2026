@@ -2,10 +2,11 @@ import { useMemo } from "react";
 import { useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { visibleWidth } from "@/three/ResponsiveCamera";
+import { visibleHalfHeight, visibleWidth } from "@/three/ResponsiveCamera";
 import {
   DEBUG_JACK,
-  FLOOR_Y,
+  DRACO_PATH,
+  floorY,
   JACK_ANCHOR,
   JACK_NODE_NAME,
   JAGUAR_URL,
@@ -23,7 +24,7 @@ import {
 export function Jaguar() {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
-  const { scene } = useGLTF(JAGUAR_URL);
+  const { scene } = useGLTF(JAGUAR_URL, DRACO_PATH);
 
   // Re-centre the GLB on its own bounding box so POSE/JACK_ANCHOR are
   // meaningful. Cloned so we never mutate drei's cached scene.
@@ -51,10 +52,13 @@ export function Jaguar() {
     const box = new THREE.Box3().setFromObject(probe);
     probe.remove(model); // hand the model back before React mounts it
 
+    const aspect = size.width / size.height;
     const posedWidth = box.max.x - box.min.x;
-    const target = visibleWidth(camera.fov, size.width / size.height) * WIDTH_FRACTION;
+    const target = visibleWidth(camera.fov, aspect) * WIDTH_FRACTION;
     const s = target / posedWidth;
-    return { scale: s, restY: FLOOR_Y - box.min.y * s };
+    // The floor itself depends on the viewport (see layout.floorY), so this
+    // has to be recomputed on resize alongside the scale.
+    return { scale: s, restY: floorY(visibleHalfHeight(camera.fov, aspect)) - box.min.y * s };
   }, [model, camera, size]);
 
   return (

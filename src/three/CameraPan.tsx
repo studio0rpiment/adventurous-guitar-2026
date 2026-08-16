@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
+import type * as THREE from "three";
 import {
-  FLOOR_Y,
+  cameraRestY,
   ISLAND_FIELD_SELECTOR,
-  PAN_LIFT,
   PAN_START_FALLBACK,
 } from "@/three/guitar/layout";
+import { visibleHalfHeight } from "@/three/ResponsiveCamera";
 import { scrollProgress, smoothstep } from "@/lib/scroll";
 
 /**
@@ -27,7 +28,8 @@ import { scrollProgress, smoothstep } from "@/lib/scroll";
  * Pure translation: no lookAt here, so the framing doesn't tilt as it descends.
  */
 export function CameraPan() {
-  const camera = useThree((s) => s.camera);
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
+  const size = useThree((s) => s.size);
   const progress = useRef(0);
   const start = useRef(PAN_START_FALLBACK);
 
@@ -66,7 +68,13 @@ export function CameraPan() {
   useFrame(() => {
     const s = start.current;
     const t = smoothstep((progress.current - s) / Math.max(0.001, 1 - s));
-    const target = t * (FLOOR_Y + PAN_LIFT);
+
+    // Everything downstream is a function of how much world this viewport
+    // sees, so a phone descends further than a desktop and both end up with
+    // the cable rig off the top and the guitar framed the same way.
+    const halfH = visibleHalfHeight(camera.fov, size.width / size.height);
+    const target = t * cameraRestY(halfH);
+
     camera.position.y += (target - camera.position.y) * 0.1;
   });
 

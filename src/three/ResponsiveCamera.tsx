@@ -18,6 +18,14 @@ export function cameraDistance(fovDeg: number, aspect: number): number {
   return Math.max(BASE_Z, FIT_HALF_W / (tanV * aspect), FIT_HALF_H / tanV);
 }
 
+/** Visible world HALF-height at the camera's framing distance. A portrait
+ *  phone sees roughly twice the desktop value — the camera is pulled way back
+ *  to fit the width — which is why the floor and the descent are derived from
+ *  this rather than from constants. */
+export function visibleHalfHeight(fovDeg: number, aspect: number): number {
+  return Math.tan((fovDeg * Math.PI) / 360) * cameraDistance(fovDeg, aspect);
+}
+
 /** Visible world width at the camera's framing distance, for that aspect. */
 export function visibleWidth(fovDeg: number, aspect: number): number {
   const tanV = Math.tan((fovDeg * Math.PI) / 360);

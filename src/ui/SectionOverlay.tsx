@@ -5,14 +5,7 @@ import { VenuePanel } from "@/ui/VenuePanel";
 import { ParticipantsPanel } from "@/ui/ParticipantsPanel";
 import { AboutPanel } from "@/ui/AboutPanel";
 import { FESTIVAL } from "@/config/festival";
-import type { SectionId } from "@/config/sections";
-
-const TITLES: Record<SectionId, string> = {
-  schedule: "Schedule",
-  venue: "Venue",
-  participants: "Participants",
-  about: "About",
-};
+import { SECTION_TITLES } from "@/config/nav";
 
 /**
  * Reads the active section from nav and renders the matching panel inside the
@@ -23,7 +16,7 @@ export function SectionOverlay() {
   if (!section) return null;
 
   return (
-    <Panel title={TITLES[section]} subtitle={FESTIVAL.dates} onClose={close}>
+    <Panel title={SECTION_TITLES[section]} subtitle={FESTIVAL.dates} onClose={close}>
       {section === "schedule" && <SchedulePanel />}
       {section === "venue" && <VenuePanel />}
       {section === "participants" && <ParticipantsPanel />}

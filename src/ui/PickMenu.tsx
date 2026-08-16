@@ -1,68 +1,54 @@
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/ui/Logo";
 import { MEDIA } from "@/config/media";
+import type { NavItem } from "@/config/nav";
+import {
+  FAN_H,
+  FAN_W,
+  LABEL_GAP,
+  LABEL_SIZE,
+  PICK_SIZE,
+  PLATE_H,
+  SPOKES,
+  WORDMARK_W,
+} from "@/ui/pickGeometry";
 
-export interface MenuItem {
-  id: string;
-  label: string;
-}
+export type MenuItem = NavItem;
 
-const ITEMS: MenuItem[] = [
-  { id: "schedule", label: "Schedule" },
-  { id: "participants", label: "Participants" },
-  { id: "venue", label: "Venue" },
-  { id: "about", label: "About" },
-];
-
-/* Overall size of the pick + fan. Everything below is expressed in base units
-   and multiplied by S, so nudging the hub's scale is a one-number change.
-   1.157625 = three 5% bumps up from the original 1.0. */
-const S = 1.157625;
-
-/* Fan geometry (px, relative to the container's top-left). Each leader is an
-   angled line from ORIGIN to a bend, then a horizontal shelf to the label.
-   Tune freely. */
-const TIP_X = 40 * S;
-const TIP_Y = 24 * S;
-const START_R = 11 * S;
-const TOP_Y = 6 * S;
-const ROW = 24 * S;
-const RIGHT_X = 116 * S;
-const X_STEP = 20 * S;
-const SHELF = 16 * S;
-
-/* Pick, wordmark and label sizes — same scale factor. */
-const PICK_SIZE = `${3 * S}rem`;
-const PLATE_H = `${3.9 * S}rem`;
-const WORDMARK_W = `clamp(${4.5 * S}rem, ${24 * S}vw, ${7.5 * S}rem)`;
-const LABEL_SIZE = `clamp(${0.5 * S}rem, ${2.1 * S}vw, ${0.6 * S}rem)`;
+// Items and fan geometry are shared with the top nav bar — see @/config/nav
+// and @/ui/pickGeometry. The mobile nav flies its buttons into these exact
+// label slots when the pick opens, so both must read the same numbers.
 
 // Shepherd School wordmark placement: closed (right of the pick) vs open
 // (shrunk + tucked up-left, clear of the fan).
 const LOGO_CLOSED = "translate(3.4rem, 0.05rem) scale(1)";
 const LOGO_OPEN = "translate(0rem, -1.65rem) scale(0.6)";
 
-const SPOKES = ITEMS.map((it, i) => {
-  const ly = TOP_Y + i * ROW;
-  const lx = RIGHT_X - i * X_STEP;
-  const bx = lx - SHELF;
-  const dx = bx - TIP_X;
-  const dy = ly - TIP_Y;
-  const len = Math.hypot(dx, dy) || 1;
-  const sx = TIP_X + (dx / len) * START_R;
-  const sy = TIP_Y + (dy / len) * START_R;
-  return { ...it, lx, ly, bx, sx, sy };
-});
-const FAN_W = 240 * S;
-const FAN_H = TOP_Y + (ITEMS.length - 1) * ROW + 30 * S;
-
 /**
  * The corner pick as a navigation hub. Desktop (mouse): hover opens the fan.
  * Touch/pen: a tap toggles it — handled per pointer-type, so a touch device
  * never needs tap-and-hold. The Shepherd wordmark tucks up-left when open.
  */
-export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
-  const [open, setOpen] = useState(false);
+export function PickMenu({
+  onSelect,
+  open: openProp,
+  onOpenChange,
+  showLabels = true,
+}: {
+  onSelect?: (id: string) => void;
+  /** Controlled open state. Falls back to internal state when omitted. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Set false when something else is drawing the labels (the mobile nav). */
+  showLabels?: boolean;
+}) {
+  const [openInternal, setOpenInternal] = useState(false);
+  const open = openProp ?? openInternal;
+  const setOpen = (next: boolean | ((o: boolean) => boolean)) => {
+    const value = typeof next === "function" ? next(open) : next;
+    setOpenInternal(value);
+    onOpenChange?.(value);
+  };
   const [mouseMode, setMouseMode] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -217,7 +203,7 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
             ))}
           </svg>
 
-          {SPOKES.map((s, i) => (
+          {showLabels && SPOKES.map((s, i) => (
             <button
               key={s.id}
               role="menuitem"
@@ -226,7 +212,7 @@ export function PickMenu({ onSelect }: { onSelect?: (id: string) => void }) {
               onClick={() => select(s.id)}
               style={{
                 position: "absolute",
-                left: s.lx + 5,
+                left: s.lx + LABEL_GAP,
                 top: s.ly,
                 transform: "translateY(-50%)",
                 pointerEvents: "auto",

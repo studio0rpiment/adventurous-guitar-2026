@@ -14,23 +14,57 @@ import { SOCKETS } from "@/three/socket/layout";
 export const JAGUAR_URL = "/models/fender_jaguar-web.glb";
 
 /**
- * The floor line.
+ * Draco decoder, served by us.
  *
- * The sockets read as a wall, so the bottom of that wall is the floor. Derived
- * from the socket layout rather than hard-coded, so moving a socket down moves
- * the floor with it. FLOOR_NUDGE is the manual trim on top of that.
+ * drei's default is Google's CDN (gstatic). The model is Draco-compressed, so
+ * if that fetch is blocked or slow the loader never settles, useGLTF suspends
+ * forever and the guitar silently never appears — no error, just nothing. Two
+ * files in /public/draco removes the third-party dependency entirely, which
+ * also means it works on bad venue wifi.
+ */
+export const DRACO_PATH = "/draco/";
+
+/**
+ * The floor, and how far the camera descends — both derived from how much
+ * world the viewport can actually see.
+ *
+ * The patch cables don't stop at their sockets: the ropes are slack and sag a
+ * long way below them, to roughly CABLE_SAG world units down. To read as "the
+ * cables went up and away", the guitar has to sit a whole viewport below THAT,
+ * not below the sockets — and a viewport is about twice as tall on a portrait
+ * phone as on a desktop. Fixed numbers can't satisfy both, so these are
+ * functions of the visible half-height.
  */
 const LOWEST_SOCKET_Y = Math.min(...SOCKETS.map((s) => s.pos[1]));
 
+/** How far the slack ropes hang below the lowest socket. Measured by eye from
+ *  the settled scene; raise it if the cables ever dip into the guitar's view. */
+export const CABLE_SAG = 10;
+
+/** Lowest thing in the cable rig — the bottom of the "wall". */
+export const CABLE_BOTTOM = LOWEST_SOCKET_Y - CABLE_SAG;
+
+/** Gap between the cable rig and the floor, in half-viewport-heights. */
+export const FLOOR_GAP_VIEWPORTS = 2;
+export const FLOOR_MARGIN = 1;
+
 /**
- * How far BELOW the cable field the floor sits. This has to clear the opening
- * frame: at the default camera the view already reaches ~6.2 world units below
- * centre, so a floor level with the cable ends (-2.5) would be on screen from
- * the first paint. Dropping it puts the guitar out of sight until CameraPan
- * descends — which is what makes the reveal a reveal.
+ * Where the guitar sits in the final frame, in half-viewport-heights above the
+ * floor. 0 puts the floor on the centre line, so the guitar occupies the
+ * middle band and leaves the footer a clear bottom strip. Raise it to push the
+ * guitar down the frame, lower it to lift it.
  */
-export const FLOOR_DROP = 16;
-export const FLOOR_Y = LOWEST_SOCKET_Y - FLOOR_DROP;
+export const FRAME_BIAS = 0;
+
+/** Floor height for a given visible half-height. */
+export function floorY(halfHeight: number): number {
+  return CABLE_BOTTOM - halfHeight * FLOOR_GAP_VIEWPORTS - FLOOR_MARGIN;
+}
+
+/** Where the camera settles at the end of the descent. */
+export function cameraRestY(halfHeight: number): number {
+  return floorY(halfHeight) + halfHeight * FRAME_BIAS;
+}
 
 /**
  * Guitar width as a fraction of the visible viewport width. 1 = edge to edge.
@@ -40,17 +74,13 @@ export const FLOOR_Y = LOWEST_SOCKET_Y - FLOOR_DROP;
 export const WIDTH_FRACTION = 1;
 
 /**
- * The camera descent.
- *
- * CameraPan measures where it starts: the scroll position at which the island
- * field's bottom clears the viewport, so the guitar is always beneath ALL the
- * islands however many there are. PAN_START_FALLBACK is only used if that
- * element can't be found. PAN_LIFT is how far above the floor the camera
- * settles — the headroom above the guitar.
+ * The camera descent starts where the islands end — CameraPan measures the
+ * scroll position at which the island field's bottom edge passes the top of
+ * the viewport, so the guitar is always beneath ALL the islands however many
+ * there are. The fallback is only used if that element can't be found.
  */
 export const ISLAND_FIELD_SELECTOR = ".ags-island-field";
 export const PAN_START_FALLBACK = 0.8;
-export const PAN_LIFT = 2.6;
 
 /**
  * Resting pose — a side profile, jack edge toward the viewer.

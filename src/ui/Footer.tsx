@@ -1,21 +1,28 @@
 import { useEffect, useRef } from "react";
 import { scrollProgress, smoothstep } from "@/lib/scroll";
+import { FESTIVAL } from "@/config/festival";
+import { MEDIA } from "@/config/media";
 
 /** Where in the page scroll the footer begins to appear (0..1). */
 const FADE_START = 0.93;
 
-/** Presenting institution — the logo is a transparent PNG of navy artwork. */
-const LOGO_SRC = "/img/Horizontal%20logo_New%20Branding_Blue.png";
 const LOGO_ALT = "Shepherd School of Music at Rice";
 const LOGO_HREF = "https://music.rice.edu/";
 
+/** Studio credit: the SO monogram, with the wordmark stacked beside it. */
+const CREDIT_HREF = "https://orpiment.studio";
+const CREDIT_NAME = "Studio Orpiment";
+const CREDIT_SHORT = "SO";
+const CREDIT_LINES = ["Studio", "Orpiment"];
+
 /**
- * The footer: the Shepherd School mark, under the guitar, at the very end.
+ * The footer: festival name, the presenting school's mark, and the studio
+ * credit — at the very end, under the guitar.
  *
  * Fades in over the last stretch of scroll rather than sitting in the layout,
- * so it reads as the end of the piece instead of another block of page. It's a
- * DOM overlay, not part of the 3D scene — the mark stays crisp at any size and
- * costs the canvas nothing.
+ * so it reads as the end of the piece instead of another block of page. A DOM
+ * overlay, not part of the 3D scene: the marks stay crisp and the canvas pays
+ * nothing for them.
  *
  * The fade writes straight to the element's style from the scroll handler. No
  * React state: opacity changes on nearly every scroll event, and re-rendering
@@ -45,9 +52,35 @@ export function Footer() {
   }, []);
 
   return (
-    <footer ref={ref} className="ags-footer" aria-label="Presented by">
-      <a href={LOGO_HREF} target="_blank" rel="noopener noreferrer">
-        <img src={LOGO_SRC} alt={LOGO_ALT} />
+    <footer ref={ref} className="ags-footer" aria-label="Festival footer">
+      <p className="ags-footer__name">The {FESTIVAL.name}</p>
+
+      <a
+        className="ags-footer__logo"
+        href={LOGO_HREF}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src={MEDIA.shepherdLogo} alt={LOGO_ALT} />
+      </a>
+
+      <a
+        className="ags-footer__credit"
+        href={CREDIT_HREF}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={CREDIT_NAME}
+      >
+        {/* aria-label carries the name, so both marks are decorative here and
+            CSS is free to show the wordmark only where there's room for it. */}
+        <span className="ags-footer__credit-short" aria-hidden>
+          {CREDIT_SHORT}
+        </span>
+        <span className="ags-footer__credit-full" aria-hidden>
+          {CREDIT_LINES.map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </span>
       </a>
     </footer>
   );
