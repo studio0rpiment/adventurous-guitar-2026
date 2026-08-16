@@ -386,11 +386,24 @@ canvas {
   font-family: "Monstera", var(--font-body);
   font-weight: 700;
   font-size: 3rem;
-  /* Block height ~= the two wordmark lines, so the pair reads as one lockup. */
-  line-height: 0.9;
+  line-height: 1;
   letter-spacing: 0;
   color: var(--orpiment);
   display: block;
+  /*
+   * Optical alignment, not box alignment.
+   *
+   * Monstera declares hhea descender = 0, so its line box has NO room below
+   * the baseline and the glyphs sit low in (and overflow) their box. Rotor has
+   * a normal 243/1000 descender. Centring the two BOXES therefore leaves the
+   * ink misaligned — measured at ~3.7px on these sizes, which is what made the
+   * lockup look like it was sitting unevenly.
+   *
+   * The value below is solved from a measurement of the rendered ink centres
+   * (0.029em of the monogram's own size), so it holds if the pair is scaled
+   * together.
+   */
+  transform: translateY(0.029em);
 }
 
 /* "Studio" over "Orpiment" in Rotor at its thinnest — a hairline against the
@@ -401,7 +414,7 @@ canvas {
   color: #ffffff;
   font-family: "Rotor VF", var(--font-body);
   font-size: 1.32rem;
-  line-height: 1.02;
+  line-height: 1;
   letter-spacing: 0.02em;
   --ags-rttx: 0;
   --ags-wght: 100;
