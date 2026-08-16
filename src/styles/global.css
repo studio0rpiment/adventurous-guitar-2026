@@ -351,7 +351,9 @@ canvas {
   grid-area: logo;
 }
 .ags-footer__logo img {
-  width: clamp(11rem, 26vw, 20rem);
+  /* 25% down from clamp(11rem, 26vw, 20rem) — all three stops scaled so it
+     shrinks by the same amount at every width, not just at the extremes. */
+  width: clamp(8.25rem, 19.5vw, 15rem);
   height: auto;
   display: block;
   /* Navy artwork on transparent would vanish on #0a0a0f — crush to black,
@@ -391,19 +393,10 @@ canvas {
   color: var(--orpiment);
   display: block;
   /*
-   * Optical alignment, not box alignment.
-   *
-   * Monstera declares hhea descender = 0, so its line box has NO room below
-   * the baseline and the glyphs sit low in (and overflow) their box. Rotor has
-   * a normal 243/1000 descender. Centring the two BOXES therefore leaves the
-   * ink misaligned — measured at ~3.7px on these sizes, which is what made the
-   * lockup look like it was sitting unevenly.
-   *
-   * The value below is solved from a measurement of the rendered ink centres
-   * (0.029em of the monogram's own size), so it holds if the pair is scaled
-   * together.
+   * Monstera declares hhea descender = 0, so its glyphs sit low in — and
+   * overflow — their line box. Nothing is corrected on the monogram itself;
+   * the wordmark is what moves (see .ags-footer__credit-full).
    */
-  transform: translateY(0.029em);
 }
 
 /* "Studio" over "Orpiment" in Rotor at its thinnest — a hairline against the
@@ -421,6 +414,21 @@ canvas {
   font-variation-settings: "RTTX" var(--ags-rttx), "wght" var(--ags-wght);
   will-change: font-variation-settings;
   transition: --ags-rttx 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  /*
+   * Sit the wordmark on the monogram's baseline.
+   *
+   * Aligning the two ink boxes put the DESCENDER of the "p" in Orpiment level
+   * with the bottom of the SO, which reads as the word floating high — the
+   * eye lines things up on the baseline, not on the one descender. This drops
+   * the wordmark so its last baseline meets the monogram's ink bottom.
+   * 0.025em of the wordmark's own size lands the two exactly level (solved
+   * from a measurement of the rendered baseline, not eyeballed).
+   * --credit-trim is the by-eye adjustment on top of that: browsers don't all
+   * resolve leading identically (Safari and Chrome differ by a hair), so the
+   * solved value gets a small manual nudge to look right in the wild.
+   */
+  --credit-trim: 4px;
+  transform: translateY(calc(0.025em + var(--credit-trim, 0px)));
 }
 .ags-footer__credit-full span {
   display: block;
@@ -460,7 +468,7 @@ canvas {
     align-self: end;
   }
   .ags-footer__logo img {
-    width: clamp(7rem, 34vw, 11rem);
+    width: clamp(5.25rem, 25.5vw, 8.25rem);
   }
   /* Phone: the monogram carries it alone — no room for the wordmark too. */
   .ags-footer__credit-full {
