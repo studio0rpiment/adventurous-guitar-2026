@@ -6,6 +6,11 @@ import { useEffect, useRef, type ReactNode } from "react";
  * Sits BELOW the HUD z-index so the pick menu stays usable (switch sections)
  * while a panel is open. Closing is event-driven: backdrop pointer-down, the
  * close button, or Escape (handled in NavProvider).
+ *
+ * Scrim and card geometry live in global.css (.ags-panel-scrim / .ags-panel),
+ * not here: on a phone the card has to start below the stacked HUD, and that
+ * clearance belongs in the same media query as the HUD's own padding rather
+ * than in a JS breakpoint that could drift out of step with it.
  */
 export function Panel({
   title,
@@ -26,21 +31,7 @@ export function Panel({
   }, []);
 
   return (
-    <div
-      onPointerDown={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 8, // below the HUD (10) so the pick menu stays clickable
-        background: "rgba(6, 6, 10, 0.72)",
-        backdropFilter: "blur(2px)",
-        WebkitBackdropFilter: "blur(2px)",
-        display: "grid",
-        placeItems: "center",
-        padding: "clamp(1rem, 5vw, 3rem)",
-        pointerEvents: "auto",
-      }}
-    >
+    <div className="ags-panel-scrim" onPointerDown={onClose}>
       <div
         ref={cardRef}
         role="dialog"
@@ -49,17 +40,6 @@ export function Panel({
         tabIndex={-1}
         onPointerDown={(e) => e.stopPropagation()}
         className="ags-panel"
-        style={{
-          width: "min(48rem, 100%)",
-          maxHeight: "min(80svh, 100%)",
-          display: "flex",
-          flexDirection: "column",
-          background: "rgba(10, 10, 15, 0.96)",
-          border: "1px solid var(--ags-muted)",
-          borderRadius: "2px",
-          outline: "none",
-          overflow: "hidden",
-        }}
       >
         <header
           style={{

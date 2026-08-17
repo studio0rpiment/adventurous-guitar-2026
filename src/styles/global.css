@@ -173,7 +173,37 @@ canvas {
   }
 }
 
+/* Scrim + card live here rather than in Panel.tsx's inline styles so the mobile
+   offset below is a media query instead of a JS breakpoint. */
+.ags-panel-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 8; /* below the HUD (10) so the pick menu stays clickable */
+  background: rgba(6, 6, 10, 0.72);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 5vw, 3rem);
+  pointer-events: auto;
+  /* Top room reserved for the HUD. Zero on desktop: the nav sits on the right
+     and a centred card already clears it. */
+  --ags-panel-clearance: 0px;
+  padding-top: max(clamp(1rem, 5vw, 3rem), var(--ags-panel-clearance));
+}
+
 .ags-panel {
+  width: min(48rem, 100%);
+  /* 100% is the scrim's CONTENT box, so the clearance below shortens the card
+     rather than pushing it back up under the menu. */
+  max-height: min(80svh, 100%);
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 10, 15, 0.96);
+  border: 1px solid var(--ags-muted);
+  border-radius: 2px;
+  outline: none;
+  overflow: hidden;
   animation: ags-panel-in 0.24s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
@@ -201,6 +231,16 @@ canvas {
   .ags-hud {
     padding-top: calc(env(safe-area-inset-top) + 2rem + 1svh) !important;
   }
+
+  /* …and start the section panel below all of it. On a phone the nav stacks
+     under the pick instead of sitting off to the right, so a vertically
+     centred card lands right on top of it — the menu is still clickable
+     (z-index 10 vs 8) but you can't read it against the card. 8rem covers the
+     pick plate and the open fan; it's the same stack the .ags-hud rule above
+     is padding for. */
+  .ags-panel-scrim {
+    --ags-panel-clearance: calc(env(safe-area-inset-top) + 2rem + 1svh + 8rem);
+  }
 }
 
 /* ── Scrollable page ──────────────────────────────────────────────────────
@@ -225,9 +265,15 @@ canvas {
 @media (hover: hover) {
   .ags-hero-spacer { pointer-events: none; }
 }
-/* Touch: the spacer captures the swipe so the page can scroll. */
+/* Touch: the spacers capture the swipe so the page can scroll.
+   The reveal spacer matters as much as the hero one — it is the ONLY thing
+   under the finger at the bottom of the page. While it was pointer-transparent
+   every touch there fell through to the canvas, which sets touch-action:none so
+   cable drags don't scroll the page. That made the bottom a dead end: you could
+   reach the guitar and then not swipe back up. */
 @media (hover: none) {
-  .ags-hero-spacer { pointer-events: auto; touch-action: pan-y; }
+  .ags-hero-spacer,
+  .ags-reveal-spacer { pointer-events: auto; touch-action: pan-y; }
 }
 
 .ags-info-grid {
