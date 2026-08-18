@@ -13,7 +13,7 @@
  * Bios sourced from Chapman's bios doc (Aug 14) unless noted otherwise.
  */
 
-import { ONGOING, SCHEDULE } from "@/config/sections";
+import { EVENTS, type FestivalEvent } from "@/config/events";
 
 /* ── About ─────────────────────────────────────────────────────────────── */
 
@@ -55,7 +55,9 @@ export interface Participant {
   role?: string;
   /** Absent until the bio arrives. */
   bio?: string;
-  /** Absent until a photo arrives; drop files in /public/img/participants/. */
+  /** Absent until a photo arrives. Web-ready square crops live in
+   *  /public/img/bioPics/; originals go in /assets-source/bioPics/ so the
+   *  multi-megabyte camera files don't ship in the build. */
   image?: string;
   links?: ParticipantLink[];
   /** Players within a group entry. */
@@ -78,6 +80,7 @@ export const PARTICIPANTS: Participant[] = [
     sortName: "Doyle, Kelly",
     role: "Guitar",
     bio: "Kelly Doyle is a boundary-pushing Houston guitarist known for seamlessly blending jazz, country, rock, and avant-garde influences into a singular sound. Primarily self-taught, Doyle has developed a highly personal approach to the electric guitar, drawing as readily from improvisation and experimental music as from the deep traditions of Texas guitar playing.",
+    image: "/img/bioPics/kelly-doyle.webp",
     links: [
       { label: "“Bats Are Cute” (live)", url: "https://www.youtube.com/watch?v=IVm3TMPJ9jI" },
     ],
@@ -152,11 +155,13 @@ export const PARTICIPANTS: Participant[] = [
     id: "patton",
     name: "Kevin Patton",
     sortName: "Patton, Kevin",
-    role: "Guitar / electroacoustic composition",
-    // TODO: bio pending — Kevin is writing it.
+    role: "Musician and designer",
+    bio: "Kevin Sinclair Patton, PhD, is a creative technologist and academic who builds interactive systems that connect people — a strategic problem solver and inventor creating bespoke technological solutions that serve artistic vision. He is also a practicing musician and audio engineer whose studio and electroacoustic work informs his approach to responsive, interactive systems. He is an Assistant Professor of Interaction Design at the Corcoran School of the Arts and Design at the George Washington University. He holds a Ph.D. and M.A. from Brown University and was an Invited Researcher at the Sorbonne, University of Paris IV. His collaborative projects span immersive web experiences, augmented reality, and interactive installations for cultural institutions. Recent work includes DECIDE(S) (decides.app), a collaborative music production web app; Wayside (wayside.at), a browser-based AR system built for artist Andrew Kastner; Guest Editor of Volume 30 of Ideas S\u00f3nicas, a bilingual peer-reviewed journal examining automation and expression in creative practice; and Louise et Ondarel, a virtuosic guitar-and-voice duo performing multilingual art songs of solidarity, love, and dreams in Arabic, Russian, French, and English. As an educator, Kevin sees a direct continuity between his public-facing work and his teaching, where student projects regularly evolve into public installations and cultural engagements.",
+    image: "/img/bioPics/kevin-patton.webp",
     links: [
       { label: "kevinpatton.site", url: "https://kevinpatton.site" },
-      { label: "DECISION(S)", url: "https://decides.app" },
+      { label: "DECIDE(S)", url: "https://decides.app" },
+      { label: "Wayside", url: "https://wayside.at" },
     ],
   },
   {
@@ -200,11 +205,11 @@ export const PARTICIPANTS: Participant[] = [
   },
 ];
 
-/* ── Derived: where each participant appears ───────────────────────────────
-   Flattened once at module load, in the order the programme is declared
-   (ONGOING first, then day → venue block → slot — same order the Schedule
-   panel renders). Assumes blocks within a day are declared chronologically,
-   which matches how sections.ts is written. */
+/* ── Derived: who appears where ────────────────────────────────────────────
+   Both directions of the participant ↔ programme relationship, matched by
+   name + `aliases` against each event's haystack (see config/events.ts). The
+   flat programme list itself used to be rebuilt here; it now comes from
+   EVENTS, so there is one traversal of SCHEDULE/ONGOING in the codebase. */
 
 export interface Appearance {
   /** e.g. "Fri, Oct 9 · 2 PM" or "Oct 8–9, 10 AM–5 PM" */
@@ -213,58 +218,44 @@ export interface Appearance {
   venue: string;
 }
 
-interface IndexedAppearance extends Appearance {
-  order: number;
-  haystack: string;
-}
-
-const PROGRAMME: IndexedAppearance[] = (() => {
-  const out: IndexedAppearance[] = [];
-  let order = 0;
-
-  for (const o of ONGOING) {
-    out.push({
-      order: order++,
-      when: o.when,
-      title: o.title,
-      venue: o.venue,
-      haystack: `${o.title} ${o.note ?? ""}`.toLowerCase(),
-    });
-  }
-
-  for (const day of SCHEDULE) {
-    for (const block of day.blocks) {
-      for (const slot of block.slots) {
-        out.push({
-          order: order++,
-          when: `${day.date} · ${slot.time}`,
-          title: slot.title,
-          venue: block.venue,
-          haystack: `${slot.title} ${slot.performers ?? ""}`.toLowerCase(),
-        });
-      }
-    }
-  }
-
-  return out;
-})();
-
 function matchers(p: Participant): string[] {
   return [p.name, ...(p.aliases ?? [])].map((s) => s.toLowerCase());
 }
 
+/** Where in an event's haystack this participant is first named, or Infinity. */
+function nameIndex(p: Participant, event: FestivalEvent): number {
+  let at = Number.POSITIVE_INFINITY;
+  for (const key of matchers(p)) {
+    const i = event.haystack.indexOf(key);
+    if (i >= 0) at = Math.min(at, i);
+  }
+  return at;
+}
+
 /** Every programme entry this participant appears in, in programme order. */
 export function participantAppearances(p: Participant): Appearance[] {
-  const keys = matchers(p);
-  return PROGRAMME.filter((entry) => keys.some((k) => entry.haystack.includes(k))).map(
-    ({ when, title, venue }) => ({ when, title, venue }),
+  return EVENTS.filter((e) => nameIndex(p, e) < Number.POSITIVE_INFINITY).map(
+    ({ when, title, venueName }) => ({ when, title, venue: venueName }),
   );
+}
+
+/**
+ * The other direction: everyone in the roster who appears in this event.
+ *
+ * Ordered by where each name falls in the event's own performer list, so a
+ * confirmed set order ("Brad Allen Williams · Kelly Doyle · Aurum Son") comes
+ * back as billed rather than alphabetically.
+ */
+export function eventParticipants(event: FestivalEvent): Participant[] {
+  return PARTICIPANTS.map((p) => ({ p, at: nameIndex(p, event) }))
+    .filter((h) => h.at < Number.POSITIVE_INFINITY)
+    .sort((a, b) => a.at - b.at)
+    .map((h) => h.p);
 }
 
 /** Programme index of a participant's first appearance; Infinity if unscheduled. */
 function firstAppearanceOrder(p: Participant): number {
-  const keys = matchers(p);
-  const hit = PROGRAMME.find((entry) => keys.some((k) => entry.haystack.includes(k)));
+  const hit = EVENTS.find((e) => nameIndex(p, e) < Number.POSITIVE_INFINITY);
   return hit ? hit.order : Number.POSITIVE_INFINITY;
 }
 

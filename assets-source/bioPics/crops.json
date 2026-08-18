@@ -1,0 +1,18 @@
+{
+  "KevinPatton.jpeg": {
+    "out": "kevin-patton",
+    "focus": [
+      0.5,
+      0.41
+    ],
+    "zoom": 1.0
+  },
+  "KellyDoyle.jpg": {
+    "out": "kelly-doyle",
+    "focus": [
+      0.465,
+      0.5
+    ],
+    "zoom": 0.45
+  }
+}

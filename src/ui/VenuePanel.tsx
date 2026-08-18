@@ -1,4 +1,5 @@
 import { venueSchedules } from "@/config/sections";
+import { ExtLink } from "@/ui/ExtLink";
 import { SlotRow } from "@/ui/SlotRow";
 
 /** Each festival location, with the sessions happening there across both days. */
@@ -24,16 +25,11 @@ export function VenuePanel() {
           )}
 
           <div style={{ display: "flex", gap: "0.9rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
-            {venue.mapUrl && (
-              <a href={venue.mapUrl} target="_blank" rel="noopener noreferrer" className="ags-link">
-                Map ↗
-              </a>
-            )}
-            {venue.url && (
-              <a href={venue.url} target="_blank" rel="noopener noreferrer" className="ags-link">
-                Website ↗
-              </a>
-            )}
+            {venue.mapUrl && <ExtLink href={venue.mapUrl} label="Map" />}
+            {venue.url && <ExtLink href={venue.url} label="Website" />}
+            {venue.links?.map((l) => (
+              <ExtLink key={l.url} href={l.url} label={l.label} />
+            ))}
           </div>
 
           {ongoing.map((o) => (

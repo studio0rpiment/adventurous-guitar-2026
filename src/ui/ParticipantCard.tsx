@@ -1,21 +1,21 @@
 import { participantAppearances, type Participant } from "@/config/participants";
-
-/** Initials fallback while we're still waiting on photos. */
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
+import { ParticipantFace } from "@/ui/ParticipantFace";
 
 /**
  * One participant: portrait (or initials), name, role, bio, links, and where
  * they appear in the programme. Appearances are derived in participants.ts, so
  * this stays presentational — same split as SlotRow / SchedulePanel.
  */
-export function ParticipantCard({ participant }: { participant: Participant }) {
+export function ParticipantCard({
+  participant,
+  showHeader = true,
+}: {
+  participant: Participant;
+  /** `false` drops the portrait and the name/role line for callers that
+   *  already show them — the participant chips inside EventDetail. The bio is
+   *  rendered in exactly one place either way. */
+  showHeader?: boolean;
+}) {
   const { name, role, bio, image, links, members } = participant;
   const appearances = participantAppearances(participant);
 
@@ -23,45 +23,24 @@ export function ParticipantCard({ participant }: { participant: Participant }) {
     <article
       style={{
         display: "grid",
-        gridTemplateColumns: "3.25rem 1fr",
+        gridTemplateColumns: showHeader ? "3.25rem 1fr" : "1fr",
         gap: "0.9rem",
-        padding: "1rem 0",
-        borderTop: "1px solid rgba(244, 241, 234, 0.12)",
+        padding: showHeader ? "1rem 0" : "0.35rem 0 0.6rem",
+        borderTop: showHeader ? "1px solid rgba(244, 241, 234, 0.12)" : "none",
       }}
     >
-      {image ? (
-        <img
-          src={image}
-          alt=""
-          width={52}
-          height={52}
-          style={{ width: "3.25rem", height: "3.25rem", objectFit: "cover", borderRadius: "2px" }}
-        />
-      ) : (
-        <div
-          aria-hidden
-          style={{
-            width: "3.25rem",
-            height: "3.25rem",
-            display: "grid",
-            placeItems: "center",
-            borderRadius: "2px",
-            border: "1px solid rgba(244, 241, 234, 0.18)",
-            color: "var(--ags-muted)",
-            fontSize: "0.8rem",
-            letterSpacing: "0.06em",
-          }}
-        >
-          {initials(name)}
-        </div>
-      )}
+      {showHeader && <ParticipantFace name={name} image={image} size="3.25rem" textSize="0.8rem" />}
 
       <div>
-        <div style={{ fontSize: "0.95rem", color: "var(--ags-fg)" }}>{name}</div>
-        {role && (
-          <div style={{ fontSize: "0.75rem", color: "var(--ags-accent)", marginTop: "0.1rem" }}>
-            {role}
-          </div>
+        {showHeader && (
+          <>
+            <div style={{ fontSize: "0.95rem", color: "var(--ags-fg)" }}>{name}</div>
+            {role && (
+              <div style={{ fontSize: "0.75rem", color: "var(--ags-accent)", marginTop: "0.1rem" }}>
+                {role}
+              </div>
+            )}
+          </>
         )}
 
         {bio ? (

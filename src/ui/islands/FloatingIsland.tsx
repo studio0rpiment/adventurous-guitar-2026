@@ -14,9 +14,13 @@ export type IslandAlign = "flex-start" | "center" | "flex-end";
  *    per-breakpoint in global.css. Phones get much less overlap so the islands
  *    don't pile on top of each other.
  *
- * Raising is event-driven: click or keyboard focus, no timers. Deliberately
- * click and not pointerdown — on touch, a swipe that scrolls the page never
- * becomes a click, so scrolling past an island doesn't raise it.
+ * Opening is event-driven: click or Enter/Space, no timers. Deliberately click
+ * and not pointerdown — on touch, a swipe that scrolls the page never becomes a
+ * click, so scrolling past an island doesn't open it.
+ *
+ * `onOpen` is handed the island's own element rather than a ref from above:
+ * the opened card grows out of exactly this rect, and the element that owns
+ * the geometry is the one that should report it.
  */
 export function FloatingIsland({
   index,
@@ -24,6 +28,7 @@ export function FloatingIsland({
   rotate,
   raised,
   onRaise,
+  onOpen,
   label,
   children,
 }: {
@@ -32,6 +37,8 @@ export function FloatingIsland({
   rotate: number;
   raised: boolean;
   onRaise: () => void;
+  /** Show the event's full detail, growing out of this element. */
+  onOpen: (el: HTMLElement) => void;
   /** Accessible name — the island's title, since the art is SVG text. */
   label: string;
   children: ReactNode;
@@ -41,14 +48,14 @@ export function FloatingIsland({
       className="ags-island"
       role="button"
       tabIndex={0}
-      aria-label={`Bring to front: ${label}`}
-      aria-pressed={raised}
-      onClick={onRaise}
+      aria-label={`Show details: ${label}`}
+      aria-haspopup="dialog"
+      onClick={(e) => onOpen(e.currentTarget)}
       onFocus={onRaise}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onRaise();
+          onOpen(e.currentTarget);
         }
       }}
       style={{
