@@ -1,12 +1,13 @@
 import type { Participant } from "@/config/participants";
-import { ParticipantFace } from "@/ui/ParticipantFace";
 
 /**
- * One tappable participant in an event's line-up: portrait (or initials) plus
- * name, acting as the header of an accordion.
+ * One name in an event's line-up: the tappable header of a bio.
  *
- * Presentational: the face (and its initials fallback) is ParticipantFace's
- * job, and what opens underneath is the caller's.
+ * Just the name and role, set like everything else on the card. It carried a
+ * portrait at first, which made the line-up read as a different component
+ * dropped into the middle of the page — a list widget among centred type. The
+ * roster panel is where faces belong; here a name is enough, and it's the thing
+ * you're tapping anyway.
  */
 export function ParticipantChip({
   participant,
@@ -17,21 +18,18 @@ export function ParticipantChip({
   open: boolean;
   onToggle: () => void;
 }) {
-  const { name, image, role } = participant;
+  const { name, role } = participant;
 
   return (
     <button
       type="button"
-      className="ags-chip"
+      className="ags-person"
       data-open={open || undefined}
       aria-expanded={open}
       onClick={onToggle}
     >
-      <ParticipantFace name={name} image={image} size="2.15rem" />
-      <span className="ags-chip__text">
-        <span className="ags-chip__name">{name}</span>
-        {role && <span className="ags-chip__role">{role}</span>}
-      </span>
+      <span className="ags-person__name">{name}</span>
+      {role && <span className="ags-person__role">{role}</span>}
     </button>
   );
 }

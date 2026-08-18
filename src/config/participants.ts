@@ -182,6 +182,7 @@ export const PARTICIPANTS: Participant[] = [
     name: "Chapman Welch",
     sortName: "Welch, Chapman",
     role: "Composer & guitarist · co-founder · REMLABS, Rice University",
+    image: "/img/bioPics/chapman-welch.webp",
     bio: "Chapman Welch is a guitarist, composer, educator, and music-technology specialist at Rice University's Shepherd School of Music, where he serves as Electroacoustic Specialist for the Rice Electroacoustic Music Labs (REMLABS). His work spans experimental and electronic music, improvisation, American guitar traditions, and the creative use of technology in performance and composition. Welch is a founding member of the Adventurous Electric Guitar Festival with composer and guitarist Christopher Trapani, an initiative devoted to contemporary and experimental approaches to the electric guitar through performances, workshops, artist presentations, and educational programs. As a guitarist, Welch toured extensively with his band Law of Nature and recorded with legendary Allman Brothers producer Johnny Sandlin. He won the 2019 Texas Flatpicking Championship and has twice been a finalist at the National Flat Pick Guitar Championship in Winfield, Kansas.",
     links: [{ label: "chapmanwelch.com", url: "http://chapmanwelch.com/" }],
   },

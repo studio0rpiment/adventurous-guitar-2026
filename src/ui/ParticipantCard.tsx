@@ -6,16 +6,7 @@ import { ParticipantFace } from "@/ui/ParticipantFace";
  * they appear in the programme. Appearances are derived in participants.ts, so
  * this stays presentational — same split as SlotRow / SchedulePanel.
  */
-export function ParticipantCard({
-  participant,
-  showHeader = true,
-}: {
-  participant: Participant;
-  /** `false` drops the portrait and the name/role line for callers that
-   *  already show them — the participant chips inside EventDetail. The bio is
-   *  rendered in exactly one place either way. */
-  showHeader?: boolean;
-}) {
+export function ParticipantCard({ participant }: { participant: Participant }) {
   const { name, role, bio, image, links, members } = participant;
   const appearances = participantAppearances(participant);
 
@@ -23,24 +14,20 @@ export function ParticipantCard({
     <article
       style={{
         display: "grid",
-        gridTemplateColumns: showHeader ? "3.25rem 1fr" : "1fr",
+        gridTemplateColumns: "3.25rem 1fr",
         gap: "0.9rem",
-        padding: showHeader ? "1rem 0" : "0.35rem 0 0.6rem",
-        borderTop: showHeader ? "1px solid rgba(244, 241, 234, 0.12)" : "none",
+        padding: "1rem 0",
+        borderTop: "1px solid rgba(244, 241, 234, 0.12)",
       }}
     >
-      {showHeader && <ParticipantFace name={name} image={image} size="3.25rem" textSize="0.8rem" />}
+      <ParticipantFace name={name} image={image} size="3.25rem" textSize="0.8rem" />
 
       <div>
-        {showHeader && (
-          <>
-            <div style={{ fontSize: "0.95rem", color: "var(--ags-fg)" }}>{name}</div>
-            {role && (
-              <div style={{ fontSize: "0.75rem", color: "var(--ags-accent)", marginTop: "0.1rem" }}>
-                {role}
-              </div>
-            )}
-          </>
+        <div style={{ fontSize: "0.95rem", color: "var(--ags-fg)" }}>{name}</div>
+        {role && (
+          <div style={{ fontSize: "0.75rem", color: "var(--ags-accent)", marginTop: "0.1rem" }}>
+            {role}
+          </div>
         )}
 
         {bio ? (

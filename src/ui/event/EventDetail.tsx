@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { FestivalEvent } from "@/config/events";
 import { eventParticipants } from "@/config/participants";
-import { ParticipantCard } from "@/ui/ParticipantCard";
 import { ParticipantChip } from "@/ui/event/ParticipantChip";
+import { ParticipantBio } from "@/ui/event/ParticipantBio";
 import { kindColor } from "@/ui/event/kind";
 import { CurvedTitle } from "@/ui/event/CurvedTitle";
 import { ExtLink } from "@/ui/ExtLink";
@@ -98,13 +98,7 @@ export function EventDetail({
                   open={openId === p.id}
                   onToggle={() => setOpenId(openId === p.id ? null : p.id)}
                 />
-                {openId === p.id && (
-                  <div className="ags-event__bio">
-                    {/* The chip already carries the face and the name, so the
-                        card drops its own header rather than repeating them. */}
-                    <ParticipantCard participant={p} showHeader={false} />
-                  </div>
-                )}
+                {openId === p.id && <ParticipantBio participant={p} />}
               </li>
             ))}
           </ul>

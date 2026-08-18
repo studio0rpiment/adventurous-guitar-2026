@@ -65,8 +65,9 @@ export const SCHEDULE: ScheduleDay[] = [
         slots: [
           {
             time: "6 PM",
-            title: "Keynote — Erik Broess",
-            note: "Topic TBD",
+            title:
+              "Music For Mitochondria: Angine de Poitrine, and how the electric guitar became \u2018cool\u2019 again",
+            performers: "Keynote \u2014 Erik Broess",
             kind: "talk",
           },
           {
