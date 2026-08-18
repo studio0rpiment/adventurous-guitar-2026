@@ -256,9 +256,17 @@ canvas {
 
 /* Empty scroll runway after the last island. One viewport clears the islands
    out of the top; the rest is the distance CameraPan has to descend to the
-   floor. Longer = slower, calmer reveal. */
+   floor. Longer = slower, calmer reveal.
+   Only the part ABOVE one viewport is runway: the first 100svh carries the last
+   island out of the top, and CameraPan starts descending from there. So the
+   descent gets (height − 100svh) of scroll. 200 → 150svh halves that runway to
+   match FLOOR_GAP_VIEWPORTS halving in guitar/layout.ts — half the distance
+   over half the scroll, so the descent keeps its pace with half as much empty
+   black in it. The two numbers are a pair; change one and the reveal either
+   drags or snaps. Never take this below 100svh: at exactly one viewport the
+   runway is zero and CameraPan's start clamps to 0.97. */
 .ags-reveal-spacer {
-  height: 200svh;
+  height: 150svh;
   pointer-events: none;
 }
 /* Desktop: let the canvas stay interactive (wheel still scrolls the page). */

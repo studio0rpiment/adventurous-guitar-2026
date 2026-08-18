@@ -44,9 +44,18 @@ export const CABLE_SAG = 10;
 /** Lowest thing in the cable rig — the bottom of the "wall". */
 export const CABLE_BOTTOM = LOWEST_SOCKET_Y - CABLE_SAG;
 
-/** Gap between the cable rig and the floor, in half-viewport-heights. */
-export const FLOOR_GAP_VIEWPORTS = 2;
-export const FLOOR_MARGIN = 1;
+/**
+ * Gap between the cable rig and the floor, in half-viewport-heights.
+ *
+ * 2 half-heights is one full viewport of empty black to cross before the
+ * guitar arrives, which read as dead air on a phone — halved to 1 (with the
+ * margin halved to match) so the descent lands sooner. The reveal spacer in
+ * global.css was halved alongside it, so the descent covers half the distance
+ * over half the scroll and keeps its original pace; change one and the other
+ * wants changing too.
+ */
+export const FLOOR_GAP_VIEWPORTS = 1;
+export const FLOOR_MARGIN = 0.5;
 
 /**
  * Where the guitar sits in the final frame, in half-viewport-heights above the
