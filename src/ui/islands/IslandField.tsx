@@ -3,20 +3,11 @@ import { EVENTS, type FestivalEvent } from "@/config/events";
 import { Island } from "./Island";
 import { FloatingIsland, type IslandAlign } from "./FloatingIsland";
 import { ExpandedIsland, type IslandOrigin } from "./ExpandedIsland";
+import { islandSummary } from "./summary";
+import { untiltedBox } from "./geometry";
 
 const ALIGN: IslandAlign[] = ["flex-start", "flex-end", "center"];
 const ROT = [-3, 2.5, -1.5, 3, -2, 1.5];
-
-/** The few lines an island carries at rest. Everything else about the event
- *  waits behind the tap — see EventDetail. */
-function summary(event: FestivalEvent) {
-  return {
-    top: event.when,
-    title: event.title,
-    sub: event.performers ?? event.venueName,
-    note: event.performers ? event.venueName : event.note,
-  };
-}
 
 /**
  * The scroll stream of floating event islands.
@@ -67,17 +58,17 @@ export function IslandField() {
                 setOpen({
                   event,
                   origin: {
-                    rect: el.getBoundingClientRect(),
+                    box: untiltedBox(el),
                     rotate,
                     // Read lazily on close: by then the page may have scrolled,
                     // and the card should return to the island's real position.
-                    liveRect: () => el.getBoundingClientRect(),
+                    liveBox: () => untiltedBox(el),
                   },
                 });
               }}
               label={event.title}
             >
-              <Island id={event.id} {...summary(event)} />
+              <Island id={event.id} {...islandSummary(event)} />
             </FloatingIsland>
           );
         })}

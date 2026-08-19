@@ -854,29 +854,74 @@ canvas {
    island's rect), and the card wears the island's own black so the grown card
    looks like the same object. */
 .ags-island-scrim {
+  /* Depth has to come from an ancestor — the turning card can't give itself
+     perspective. The origin sits above centre so the stone appears to go over
+     slightly away from the reader rather than straight at them. */
+  perspective: 1600px;
+  perspective-origin: 50% 42%;
   /* Locks the page without touching window.scrollY — pinning the body would
      move the scroll position, and the 3D camera reads page scroll. */
   touch-action: none;
+  animation: ags-scrim-in 420ms ease both;
 }
+@keyframes ags-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* The stone. This element is only a hinge: it carries no background of its own,
+   because both of those belong to its two faces. It must NOT have overflow
+   hidden — that forces `transform-style: flat` and collapses the turn. */
 .ags-island-card {
-  /* The island's own material: its black, an oblong silhouette and the same
-     soft drop shadow the islands float on — so the opened card reads as the
-     island grown, not as a dialog that replaced it. The section panels keep
-     their squarer technical-manual look; these are different objects. */
-  animation: none;
   position: relative;
-  background: #08080b;
-  border: 0;
-  border-radius: clamp(1.6rem, 6vw, 2.75rem);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.85);
+  display: flex;
   width: min(52rem, 100%);
+  max-height: min(80svh, 100%);
   /* Short events shouldn't collapse to a strip — an oblong needs some body to
      read as one. Capped so it can never outgrow the room the scrim leaves. */
   min-height: min(26rem, 100%);
-  will-change: transform, opacity;
-  transform-origin: center center;
+  outline: none;
+  transform-style: preserve-3d;
+  transform-origin: 50% 0;
+  will-change: transform;
 }
+
+.ags-island-face {
+  /* Each face shows only when it's pointing at the reader; this is what makes
+     the swap happen at the edge-on moment instead of the two overlapping. */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: clamp(1.6rem, 6vw, 2.75rem);
+}
+
+/* The readable side. In normal flow, so it's what gives the card its size —
+   and it wears the island's material: island black, an oblong silhouette and
+   the same soft shadow the islands float on. */
+.ags-island-face--back {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  background: #08080b;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+}
+
+/* The island itself, laid over the back. Top-aligned and full width: with the
+   turn's uniform scale and top-centre origin, that lands it exactly on the
+   island in the page at the start of the move. */
+.ags-island-face--front {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: rotateY(180deg);
+  pointer-events: none;
+}
+
 .ags-island-card__body {
+  flex: 1 1 auto;
+  min-width: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: pan-y;
@@ -884,24 +929,6 @@ canvas {
      radius eats into the first and last lines otherwise. */
   padding: clamp(1.8rem, 6vw, 2.9rem) clamp(1.5rem, 5vw, 2.6rem);
 }
-.ags-island-card__close {
-  position: absolute;
-  /* Inset past the corner radius — the card clips to its rounded shape, so a
-     button parked in the corner gets its own corner shaved off. */
-  top: clamp(0.9rem, 3vw, 1.5rem);
-  right: clamp(0.9rem, 3vw, 1.5rem);
-  z-index: 1;
-  width: 2rem;
-  height: 2rem;
-  appearance: none;
-  background: rgba(8, 8, 11, 0.8);
-  border: 1px solid var(--ags-muted);
-  border-radius: 999px;
-  line-height: 1;
-  color: var(--ags-fg);
-  cursor: pointer;
-}
-
 /* Opened-island scale: the same content as a schedule row's detail, set as the
    object's own type rather than as a footnote under a list line. */
 .ags-event--large {
