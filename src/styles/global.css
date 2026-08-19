@@ -919,6 +919,28 @@ canvas {
   pointer-events: none;
 }
 
+/* Sits over the back face, inset PAST the corner radius — the face clips to its
+   rounded shape, so a button parked in the corner gets its own corner shaved
+   off. (This rule went missing when the card was rebuilt for the turn: with no
+   position it became a flex item in the back face, took a default button
+   background, and shoved the whole column 28px to the right.) */
+.ags-island-card__close {
+  position: absolute;
+  top: clamp(0.9rem, 3vw, 1.5rem);
+  right: clamp(0.9rem, 3vw, 1.5rem);
+  z-index: 1;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  appearance: none;
+  background: rgba(8, 8, 11, 0.8);
+  border: 1px solid var(--ags-muted);
+  border-radius: 999px;
+  line-height: 1;
+  color: var(--ags-fg);
+  cursor: pointer;
+}
+
 .ags-island-card__body {
   flex: 1 1 auto;
   min-width: 0;
@@ -996,4 +1018,17 @@ canvas {
 }
 .ags-event--large .ags-event__links .ags-link {
   font-size: 0.9rem;
+}
+
+/* Desktop: let the description breathe.
+   46ch is a book measure, and on an 832px card it left the abstract as a narrow
+   ribbon down the middle with more margin than text. There's room for a longer
+   line here, so the measure widens with the card — still capped, because the
+   full content width would be ~95ch and that's a genuinely hard read. Phones
+   keep the tighter measure; they never had the room to spare. */
+@media (min-width: 768px) {
+  .ags-event--large .ags-event__para,
+  .ags-event--large .ags-event__bio {
+    max-width: min(100%, 72ch);
+  }
 }
