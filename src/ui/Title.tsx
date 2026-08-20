@@ -1,8 +1,5 @@
 import { FESTIVAL } from "@/config/festival";
 
-// Three display lines for the title lockup.
-const TITLE_LINES = ["Adventurous", "Electric Guitar", "Festival"];
-
 /**
  * Festival title over the cable scene. Centered, all-caps, in the site font.
  * Decorative overlay — pointer-events pass through so the cable stays grabbable.
@@ -33,7 +30,7 @@ export function Title() {
             letterSpacing: "0.08em",
           }}
         >
-          {TITLE_LINES.map((line) => (
+          {FESTIVAL.titleLines.map((line) => (
             <span key={line} style={{ display: "block" }}>
               {line}
             </span>

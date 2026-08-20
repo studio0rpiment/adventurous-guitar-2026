@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { Jaguar } from "./Jaguar";
 import { MOUNT_AT } from "./layout";
-import { scrollProgress } from "@/lib/scroll";
+import { scrollProgress, watchScroll } from "@/lib/scroll";
 
 /**
  * Gate + Suspense boundary for the floor guitar.
@@ -17,16 +17,9 @@ export function FloorGuitar() {
 
   useEffect(() => {
     if (mounted) return;
-    const check = () => {
+    return watchScroll(() => {
       if (scrollProgress() >= MOUNT_AT) setMounted(true);
-    };
-    check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check);
-    return () => {
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
-    };
+    });
   }, [mounted]);
 
   if (!mounted) return null;

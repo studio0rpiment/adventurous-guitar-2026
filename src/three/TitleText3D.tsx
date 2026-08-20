@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Text } from "@react-three/drei";
 import { FESTIVAL } from "@/config/festival";
+import { watchScroll } from "@/lib/scroll";
 
 const FONT = "/fonts/Format_1452.ttf";
 const WHITE = "#f4f1ea";
@@ -14,7 +15,7 @@ const CY = -0.8; // vertical centre of the lockup at scroll 0 (lower = sits furt
 const Z = 6.5; // in front of the cables so it floats on top
 const RISE = 9; // world units the lockup rises over one viewport of scroll
 
-const LINES = ["ADVENTUROUS", "ELECTRIC GUITAR", "FESTIVAL"];
+const LINES = FESTIVAL.titleLines.map((l) => l.toUpperCase());
 
 /**
  * The title lockup as 3D text floating in front of the cables. It scrolls up
@@ -24,13 +25,13 @@ export function TitleText3D() {
   const group = useRef<THREE.Group>(null);
   const scrollY = useRef(0);
 
-  useEffect(() => {
-    const onScroll = () => {
-      scrollY.current = window.scrollY;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  useEffect(
+    () =>
+      watchScroll(() => {
+        scrollY.current = window.scrollY;
+      }),
+    [],
+  );
 
   useFrame(() => {
     const g = group.current;

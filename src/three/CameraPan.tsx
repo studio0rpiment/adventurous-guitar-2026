@@ -7,7 +7,7 @@ import {
   PAN_START_FALLBACK,
 } from "@/three/guitar/layout";
 import { visibleHalfHeight } from "@/three/ResponsiveCamera";
-import { scrollProgress, smoothstep } from "@/lib/scroll";
+import { scrollProgress, smoothstep, watchScroll } from "@/lib/scroll";
 
 /**
  * Slides the camera down to the floor once the islands are done.
@@ -49,19 +49,14 @@ export function CameraPan() {
       start.current = Math.min(0.97, Math.max(0, startScroll / max));
     };
 
-    const onScroll = () => {
-      progress.current = scrollProgress();
-    };
-
     measure();
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", measure);
-    window.addEventListener("resize", onScroll);
+    const stop = watchScroll(() => {
+      progress.current = scrollProgress();
+    });
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      stop();
       window.removeEventListener("resize", measure);
-      window.removeEventListener("resize", onScroll);
     };
   }, []);
 

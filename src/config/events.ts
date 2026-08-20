@@ -110,7 +110,3 @@ export const EVENTS: readonly FestivalEvent[] = ALL;
 export function eventForSlot(slot: ScheduleSlot): FestivalEvent | undefined {
   return BY_SLOT.get(slot);
 }
-
-export function eventById(id: string): FestivalEvent | undefined {
-  return ALL.find((e) => e.id === id);
-}

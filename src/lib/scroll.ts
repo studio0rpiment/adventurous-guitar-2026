@@ -19,3 +19,21 @@ export function smoothstep(t: number): number {
   const x = Math.min(1, Math.max(0, t));
   return x * x * (3 - 2 * x);
 }
+
+/**
+ * Call `fn` now and on every scroll or resize; returns the unsubscribe.
+ *
+ * Four components (camera descent, title rise, guitar mount gate, footer fade)
+ * carried the same add/remove listener boilerplate. Resize is included because
+ * anything derived from scrollProgress() changes when the document height
+ * does. Scroll listens passive — none of these handlers preventDefault.
+ */
+export function watchScroll(fn: () => void): () => void {
+  fn();
+  window.addEventListener("scroll", fn, { passive: true });
+  window.addEventListener("resize", fn);
+  return () => {
+    window.removeEventListener("scroll", fn);
+    window.removeEventListener("resize", fn);
+  };
+}

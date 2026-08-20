@@ -22,5 +22,13 @@
       0.5
     ],
     "zoom": 1.0
+  },
+  "SoniaFlores.jpg": {
+    "out": "aurum-son",
+    "focus": [
+      0.42,
+      0.4
+    ],
+    "zoom": 0.7
   }
 }

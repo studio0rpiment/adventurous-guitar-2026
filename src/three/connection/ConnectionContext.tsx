@@ -8,6 +8,7 @@ import {
 } from "react";
 import * as THREE from "three";
 import { SOCKETS } from "@/three/socket/layout";
+import { screenDistance } from "@/three/screen";
 
 export interface SocketRef {
   id: number;
@@ -51,7 +52,6 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
   );
   const [aligningId, setAligningId] = useState<number | null>(null);
   const grabbed = useRef<string | null>(null);
-  const proj = useMemo(() => new THREE.Vector3(), []);
 
   const value = useMemo<ConnectionCtx>(
     () => ({
@@ -62,10 +62,7 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
         let idx = -1;
         let best = maxPx;
         for (const s of sockets) {
-          proj.copy(s.pos).project(camera);
-          const sx = (proj.x * 0.5 + 0.5) * width;
-          const sy = (-proj.y * 0.5 + 0.5) * height;
-          const d = Math.hypot(sx - px, sy - py);
+          const d = screenDistance(s.pos, camera, width, height, px, py);
           if (d < best) {
             best = d;
             idx = s.id;
@@ -82,7 +79,7 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
         if (grabbed.current === key) grabbed.current = null;
       },
     }),
-    [sockets, aligningId, proj],
+    [sockets, aligningId],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

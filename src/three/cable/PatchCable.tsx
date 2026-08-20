@@ -7,6 +7,7 @@ import { JackPlug } from "./JackPlug";
 import { createDrapedRope, stepRope } from "./verlet";
 import { EXIT_LOCAL, JACK_AXIS, ROPE, TARGET_LEN } from "./constants";
 import { useConnection } from "@/three/connection/ConnectionContext";
+import { screenDistance } from "@/three/screen";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
 const SEAT_PX = 46; // within this it seats (plugs in)
@@ -94,7 +95,6 @@ export function PatchCable({
   const gStart = useMemo(() => new THREE.Vector3(), []);
   const aStart = useMemo(() => new THREE.Vector3(), []);
   const hit = useMemo(() => new THREE.Vector3(), []);
-  const proj = useMemo(() => new THREE.Vector3(), []);
   const tan = useMemo(() => new THREE.Vector3(), []);
   const targetQ = useMemo(() => new THREE.Quaternion(), []);
   const exit = useMemo(() => new THREE.Vector3(), []);
@@ -146,10 +146,7 @@ export function PatchCable({
         setAligningId(near >= 0 ? near : null);
         if (armed.current && near >= 0) {
           const s = sockets[near];
-          proj.copy(s.pos).project(camera);
-          const sx = (proj.x * 0.5 + 0.5) * size.width;
-          const sy = (-proj.y * 0.5 + 0.5) * size.height;
-          if (Math.hypot(sx - e.clientX, sy - e.clientY) < SEAT_PX) {
+          if (screenDistance(s.pos, camera, size.width, size.height, e.clientX, e.clientY) < SEAT_PX) {
             end.plugged = near;
             end.anchor.copy(s.pos).addScaledVector(s.dir, OUTSET);
             end.aligning = -1;

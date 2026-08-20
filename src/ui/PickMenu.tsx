@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/ui/Logo";
+import { useEscape } from "@/lib/useEscape";
 import { MEDIA } from "@/config/media";
 import type { NavItem } from "@/config/nav";
 import {
@@ -58,20 +59,14 @@ export function PickMenu({
   const lastPointer = useRef<string>("mouse");
 
   // Close on Escape or on any pointer down outside the menu (event-driven).
+  useEscape(open, () => setOpen(false));
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
     const onDown = (e: PointerEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
     };
-    window.addEventListener("keydown", onKey);
     window.addEventListener("pointerdown", onDown);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("pointerdown", onDown);
-    };
+    return () => window.removeEventListener("pointerdown", onDown);
   }, [open]);
 
   const select = (id: string) => {

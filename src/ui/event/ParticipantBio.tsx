@@ -1,5 +1,6 @@
 import type { Participant } from "@/config/participants";
 import { ExtLink } from "@/ui/ExtLink";
+import { Paras } from "@/ui/Paras";
 
 /**
  * A participant's bio as it appears inside an event — set in the card's own
@@ -20,11 +21,7 @@ export function ParticipantBio({ participant }: { participant: Participant }) {
   return (
     <div className="ags-event__bio">
       {bio ? (
-        bio.split(/\n\s*\n/).map((para, i) => (
-          <p key={i} className="ags-event__para">
-            {para}
-          </p>
-        ))
+        <Paras text={bio} />
       ) : (
         <p className="ags-event__para ags-event__para--awaiting">Bio to come.</p>
       )}

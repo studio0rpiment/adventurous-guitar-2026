@@ -1,5 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscape } from "@/lib/useEscape";
 import type { FestivalEvent } from "@/config/events";
 import { EventDetail } from "@/ui/event/EventDetail";
 import { Island } from "@/ui/islands/Island";
@@ -144,13 +145,7 @@ export function ExpandedIsland({
     return () => animRef.current?.cancel();
   }, [origin]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") startClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [closing, origin]);
+  useEscape(true, startClose);
 
   /**
    * Turn it back. The island is still in the page, so its rect is re-read now

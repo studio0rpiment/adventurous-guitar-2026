@@ -15,7 +15,6 @@ export const JACK_MODEL_URL = "/models/guitarCableJack.glb";
 /** Verlet rope tuning. */
 export const ROPE = {
   count: 26,
-  restTotal: 5.5, // length of the hung cable
   gravity: -0.014,
   damping: 0.98,
   iterations: 18,
@@ -23,14 +22,3 @@ export const ROPE = {
   tubeSegments: 54,
   tubeRadial: 10,
 } as const;
-
-/** Default rest positions of the two ends. */
-/** Hung "put away" shape: the two plug ends hang at the bottom (narrow), while
- * HOOK pins the cable middle up high so it drapes into an upside-down U. */
-export const END_A = new THREE.Vector3(-3.9, -1.6, 0);
-export const END_B = new THREE.Vector3(-2.9, -1.6, 0);
-export const HOOK = new THREE.Vector3(-3.4, 2.0, 0);
-
-/** Single-point hang: pinned by its top plug; the cable hangs straight down to
- *  the left of the title, the lower plug dangling free. Tune position here. */
-export const HANG_TOP = new THREE.Vector3(-4.5, 2.6, 0);

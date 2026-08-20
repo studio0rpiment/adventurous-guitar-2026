@@ -138,8 +138,6 @@ canvas {
   touch-action: none;
 }
 
-/* ENTER cue: letters flip around the Y axis (keyframes generated per-letter in
-   EnterCue.tsx). Respect reduced-motion by holding them still. */
 /* Pick menu: leader-line items fade/slide in when the fan opens. */
 @keyframes ags-menu-in {
   from {
@@ -153,7 +151,6 @@ canvas {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ags-enter-letter,
   .ags-menu-item {
     animation: none !important;
   }
@@ -282,30 +279,6 @@ canvas {
 @media (hover: none) {
   .ags-hero-spacer,
   .ags-reveal-spacer { pointer-events: auto; touch-action: pan-y; }
-}
-
-.ags-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(2rem, 5vw, 4rem);
-  max-width: 72rem;
-  margin: 0 auto;
-  user-select: text;
-}
-@media (max-width: 768px) {
-  .ags-info-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.ags-info-h {
-  margin: 0 0 1rem;
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: clamp(1.1rem, 4vw, 1.5rem);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ags-fg);
 }
 
 /* Island field: pass pointer through to the cables on desktop; capture the

@@ -2,12 +2,12 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import type { SectionId } from "@/config/sections";
+import { useEscape } from "@/lib/useEscape";
 
 interface NavState {
   section: SectionId | null;
@@ -32,14 +32,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const close = useCallback(() => setSection(null), []);
 
   // Close the active section on Escape (event-driven).
-  useEffect(() => {
-    if (!section) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSection(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [section]);
+  useEscape(Boolean(section), close);
 
   const value = useMemo(
     () => ({ section, open, close }),

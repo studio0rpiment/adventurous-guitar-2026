@@ -1,5 +1,6 @@
 import { participantAppearances, type Participant } from "@/config/participants";
 import { ParticipantFace } from "@/ui/ParticipantFace";
+import { ExtLink } from "@/ui/ExtLink";
 
 /**
  * One participant: portrait (or initials), name, role, bio, links, and where
@@ -107,15 +108,7 @@ export function ParticipantCard({ participant }: { participant: Participant }) {
         {links && links.length > 0 && (
           <div style={{ display: "flex", gap: "0.9rem", flexWrap: "wrap", marginTop: "0.55rem" }}>
             {links.map((l) => (
-              <a
-                key={l.url}
-                href={l.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ags-link"
-              >
-                {l.label} ↗
-              </a>
+              <ExtLink key={l.url} href={l.url} label={l.label} />
             ))}
           </div>
         )}

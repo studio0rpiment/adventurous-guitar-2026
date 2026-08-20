@@ -99,6 +99,7 @@ export const PARTICIPANTS: Participant[] = [
     name: "Aurum Son",
     sortName: "Aurum Son",
     role: "Sonia Flores — bass, voice, composition",
+    image: "/img/bioPics/aurum-son.webp",
     bio: "Aurum Son is the moniker for the original music projects led by Houston bassist, vocalist, and composer Sonia Flores. A graduate of Texas Southern University, she received her Bachelors in Fine Arts with a concentration in Jazz Studies. As a solo artist, much of Flores' work includes impromptu song composition, story telling, costume design and tonal/atonal melodies. Recurring themes as a composer are inspired by the spirit journey, the vastness of the universe, quantum theories, motherhood, brown/latinx experiences, the life and death cycle but above all else, universal love. Aurum Son is a delicate balance of free jazz, avant-garde improvisation and composed song — pulling from folk music from around the globe and avant garde sensibilities, it all comes together in a fantastical aural journey, defying categorization. In full ensemble, Flores is joined by Houston musicians Jesse Ward on guitar, and Gregory Jr. Brown and Yul Dorn on drums.",
     links: [
       { label: "“The Western Lands”", url: "https://youtu.be/EEoR8BFEy8E" },

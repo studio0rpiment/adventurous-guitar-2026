@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { scrollProgress, smoothstep } from "@/lib/scroll";
+import { scrollProgress, smoothstep, watchScroll } from "@/lib/scroll";
 import { FESTIVAL } from "@/config/festival";
 import { MEDIA } from "@/config/media";
 
@@ -42,13 +42,7 @@ export function Footer() {
       el.style.pointerEvents = t > 0.6 ? "auto" : "none";
       el.style.transform = `translateY(${(1 - t) * 14}px)`;
     };
-    apply();
-    window.addEventListener("scroll", apply, { passive: true });
-    window.addEventListener("resize", apply);
-    return () => {
-      window.removeEventListener("scroll", apply);
-      window.removeEventListener("resize", apply);
-    };
+    return watchScroll(apply);
   }, []);
 
   return (

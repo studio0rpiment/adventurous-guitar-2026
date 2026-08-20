@@ -7,19 +7,6 @@ export interface RopePoint {
   pinned: boolean;
 }
 
-/** Build a rope of points evenly spaced between the two ends (ends pinned). */
-export function createRope(a: THREE.Vector3, b: THREE.Vector3): RopePoint[] {
-  const pts: RopePoint[] = [];
-  for (let i = 0; i < ROPE.count; i++) {
-    const t = i / (ROPE.count - 1);
-    const p = new THREE.Vector3().lerpVectors(a, b, t);
-    pts.push({ p: p.clone(), prev: p.clone(), pinned: i === 0 || i === ROPE.count - 1 });
-  }
-  return pts;
-}
-
-const SEG = ROPE.restTotal / (ROPE.count - 1);
-
 /**
  * One Verlet integration + constraint-relaxation step. The two ends are held at
  * the supplied anchors; interior points fall under gravity and settle. This runs
@@ -30,7 +17,7 @@ export function stepRope(
   pts: RopePoint[],
   anchorA: THREE.Vector3,
   anchorB: THREE.Vector3,
-  seg: number = SEG,
+  seg: number,
 ): void {
   const n = pts.length;
   for (let i = 0; i < n; i++) {
@@ -71,51 +58,6 @@ export function stepRope(
       b.p.z -= dz * diff * mB;
     }
   }
-}
-
-/**
- * Build a rope draped over a middle "hook": points run a -> hook (first half)
- * and hook -> b (second half), with both ends AND the middle pinned. Under
- * gravity the two halves hang into a narrow upside-down U (a cable put away on
- * a wall). No hook object is drawn — it's just the pinned middle point.
- */
-export function createHungRope(
-  a: THREE.Vector3,
-  hook: THREE.Vector3,
-  b: THREE.Vector3,
-): RopePoint[] {
-  const n = ROPE.count;
-  const mid = Math.floor((n - 1) / 2);
-  const pts: RopePoint[] = [];
-  for (let i = 0; i < n; i++) {
-    const p =
-      i <= mid
-        ? new THREE.Vector3().lerpVectors(a, hook, mid === 0 ? 0 : i / mid)
-        : new THREE.Vector3().lerpVectors(hook, b, (i - mid) / (n - 1 - mid));
-    pts.push({
-      p: p.clone(),
-      prev: p.clone(),
-      pinned: i === 0 || i === n - 1 || i === mid,
-    });
-  }
-  return pts;
-}
-
-/**
- * Build a cable hung by its top plug: only the first point is pinned (at `top`),
- * and the points start on a straight vertical line below it. Under gravity it
- * settles hanging straight down with the lower plug dangling free — the way a
- * short cable is stored on a single hook.
- */
-export function createHangingRope(top: THREE.Vector3): RopePoint[] {
-  const n = ROPE.count;
-  const seg = ROPE.restTotal / (n - 1);
-  const pts: RopePoint[] = [];
-  for (let i = 0; i < n; i++) {
-    const p = new THREE.Vector3(top.x, top.y - i * seg, top.z);
-    pts.push({ p: p.clone(), prev: p.clone(), pinned: i === 0 });
-  }
-  return pts;
 }
 
 /**

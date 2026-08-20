@@ -6,6 +6,7 @@ import { ParticipantBio } from "@/ui/event/ParticipantBio";
 import { kindColor } from "@/ui/event/kind";
 import { CurvedTitle } from "@/ui/event/CurvedTitle";
 import { ExtLink } from "@/ui/ExtLink";
+import { Paras } from "@/ui/Paras";
 
 /**
  * Everything we know about one programme entry, as a readable column.
@@ -81,11 +82,7 @@ export function EventDetail({
 
       {event.note && <p className="ags-event__note">{event.note}</p>}
 
-      {event.abstract?.split(/\n\s*\n/).map((para, i) => (
-        <p key={i} className="ags-event__para">
-          {para}
-        </p>
-      ))}
+      {event.abstract && <Paras text={event.abstract} />}
 
       {people.length > 0 && (
         <section className="ags-event__lineup">

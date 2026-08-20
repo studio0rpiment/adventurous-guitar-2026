@@ -25,7 +25,7 @@ export function AboutPanel() {
         <p
           key={i}
           style={{
-            margin: i === 0 ? "0 0 0.85rem" : "0 0 0.85rem",
+            margin: "0 0 0.85rem",
             fontSize: "0.85rem",
             lineHeight: 1.6,
             color: "var(--ags-fg)",
