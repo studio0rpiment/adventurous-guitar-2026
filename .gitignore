@@ -17,6 +17,7 @@ GraphicsWork/
 
 # scratch preview images (safe to delete)
 _scratch/
+_to_delete
 _trace/
 *.local
 
