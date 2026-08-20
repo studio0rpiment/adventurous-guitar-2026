@@ -26,6 +26,20 @@ export function visibleHalfHeight(fovDeg: number, aspect: number): number {
   return Math.tan((fovDeg * Math.PI) / 360) * cameraDistance(fovDeg, aspect);
 }
 
+/**
+ * How much a plane at world `z` is magnified relative to the z=0 framing plane.
+ *
+ * Anything drawn in front of the cables (the title lockup at z=6.5) sits closer
+ * to the camera than the plane these framing numbers describe, so it sees a
+ * SMALLER slice of world — multiply a visible dimension by this to get the one
+ * that applies at that depth. Not accounting for it is what let the lockup's
+ * date line fall off the bottom of a desktop window.
+ */
+export function planeScale(fovDeg: number, aspect: number, z: number): number {
+  const d = cameraDistance(fovDeg, aspect);
+  return Math.max(0.05, (d - z) / d);
+}
+
 /** Visible world width at the camera's framing distance, for that aspect. */
 export function visibleWidth(fovDeg: number, aspect: number): number {
   const tanV = Math.tan((fovDeg * Math.PI) / 360);
