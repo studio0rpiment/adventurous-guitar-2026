@@ -4,7 +4,14 @@
  * the real Oct 8-9 program; items still marked TBA/(?) below are unconfirmed.
  */
 
-export type SectionId = "schedule" | "participants" | "venue" | "about";
+/** Every routable section. Not all of them are menu items — "privacy" is
+ *  reached from the footer, not the pick menu (see config/nav.ts). */
+export type SectionId =
+  | "schedule"
+  | "participants"
+  | "venue"
+  | "about"
+  | "privacy";
 
 /* ── Schedule ──────────────────────────────────────────────────────────────
    The festival runs across several venues each day, so the schedule is grouped

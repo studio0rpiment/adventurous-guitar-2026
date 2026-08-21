@@ -1,5 +1,6 @@
 import { participantAppearances, type Participant } from "@/config/participants";
 import { ParticipantFace } from "@/ui/ParticipantFace";
+import { Paras } from "@/ui/Paras";
 import { ExtLink } from "@/ui/ExtLink";
 
 /**
@@ -32,17 +33,10 @@ export function ParticipantCard({ participant }: { participant: Participant }) {
         )}
 
         {bio ? (
-          <p
-            style={{
-              margin: "0.5rem 0 0",
-              fontSize: "0.78rem",
-              lineHeight: 1.5,
-              color: "var(--ags-fg)",
-              opacity: 0.85,
-            }}
-          >
-            {bio}
-          </p>
+          // Paragraphed, not one block: several bios arrived as multiple
+          // paragraphs and they're published as they were sent, so the breaks
+          // are part of the text rather than formatting we get to drop.
+          <Paras text={bio} className="ags-bio__para" />
         ) : (
           <p
             style={{

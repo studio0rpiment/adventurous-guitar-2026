@@ -17,7 +17,9 @@ const META_LABEL: React.CSSProperties = {
   fontSize: "0.68rem",
 };
 
-/** What the festival is, who runs it, and who backs it. */
+/** What the festival is, who runs it, and who backs it — and only that. How the
+ *  site itself was made lives with the privacy notice: this panel is about the
+ *  festival, not about the website. */
 export function AboutPanel() {
   return (
     <div>
@@ -54,6 +56,7 @@ export function AboutPanel() {
           <span>{FESTIVAL.dates}</span>
         </div>
       </div>
+
     </div>
   );
 }

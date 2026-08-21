@@ -6,19 +6,28 @@ export interface NavItem {
 }
 
 /**
- * The four sections, in display order — the single source for every way into
- * them. The pick menu fans these out, the top nav bar lists them, and the
- * section overlay takes its heading from the same labels, so a rename here
- * lands everywhere at once.
+ * Every section's heading — the single source for every way in. The pick menu
+ * fans out the menu ones, the top nav bar lists them, and the section overlay
+ * takes its heading from here, so a rename lands everywhere at once.
  */
-export const NAV_ITEMS: NavItem[] = [
-  { id: "schedule", label: "Schedule" },
-  { id: "participants", label: "Participants" },
-  { id: "venue", label: "Venue" },
-  { id: "about", label: "About" },
-];
+export const SECTION_TITLES: Record<SectionId, string> = {
+  schedule: "Schedule",
+  participants: "Participants",
+  venue: "Venue",
+  about: "About",
+  privacy: "Privacy & personal data",
+};
 
-/** Section id -> panel heading, derived so it can't fall out of step. */
-export const SECTION_TITLES = Object.fromEntries(
-  NAV_ITEMS.map((i) => [i.id, i.label]),
-) as Record<SectionId, string>;
+/**
+ * The sections that appear in the MENUS, in display order.
+ *
+ * Privacy is deliberately not among them: it's a section you can open, reached
+ * from the footer where a privacy notice belongs, rather than a fifth spoke
+ * competing with the programme. The fan's geometry is also built for four.
+ */
+export const MENU_SECTIONS: SectionId[] = ["schedule", "participants", "venue", "about"];
+
+export const NAV_ITEMS: NavItem[] = MENU_SECTIONS.map((id) => ({
+  id,
+  label: SECTION_TITLES[id],
+}));

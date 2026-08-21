@@ -9,8 +9,11 @@ export const JACK_AXIS = new THREE.Vector3(0, 0, 1);
 /** Where the cable meets the plug, in the jack's local (normalized) frame. */
 export const EXIT_LOCAL = new THREE.Vector3(0, 0, TARGET_LEN / 2);
 
-/** Path to the jack model in /public. */
-export const JACK_MODEL_URL = "/models/guitarCableJack.glb";
+/* The jack used to be a downloaded .glb. It's now spun from its own profile in
+   cable/plugProfile.ts — see docs/ASSET-PROVENANCE.md for why, but the short
+   version is that the model was licensed for editorial use only and a plug is a
+   turned part we can measure. Nothing here changed: same length, same axis,
+   same exit point, so PatchCable never noticed. */
 
 /** Verlet rope tuning. */
 export const ROPE = {

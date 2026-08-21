@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { scrollProgress, smoothstep, watchScroll } from "@/lib/scroll";
 import { FESTIVAL } from "@/config/festival";
 import { MEDIA } from "@/config/media";
+import { useNav } from "@/ui/nav";
+import { SECTION_TITLES } from "@/config/nav";
 
 /** Where in the page scroll the footer begins to appear (0..1). */
 const FADE_START = 0.93;
@@ -50,6 +52,7 @@ const CREDIT_LINES = ["Studio", "Orpiment"];
  * is crossed, and CSS carries the 300ms from there.
  */
 export function Footer() {
+  const { open } = useNav();
   const ref = useRef<HTMLElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const lockupRef = useRef<HTMLParagraphElement>(null);
@@ -94,6 +97,16 @@ export function Footer() {
         >
           <img src={MEDIA.shepherdLogo} alt={LOGO_ALT} />
         </a>
+
+        {/* The notice opens in the same panel shell as the programme sections —
+            it's a section, just not a menu one. */}
+        <button
+          type="button"
+          className="ags-footer__privacy"
+          onClick={() => open("privacy")}
+        >
+          {SECTION_TITLES.privacy}
+        </button>
 
         <a
           className="ags-footer__credit"

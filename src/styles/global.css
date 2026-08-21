@@ -405,10 +405,34 @@ canvas {
   opacity: 0;
   will-change: opacity;
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "logo credit";
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "logo privacy credit";
   align-items: end;
   gap: 1rem;
+}
+
+/* Quiet by design: a notice should be findable, not advertised. */
+.ags-footer__privacy {
+  grid-area: privacy;
+  justify-self: start;
+  align-self: end;
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0 0 0.15rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ags-muted);
+  border-bottom: 1px solid transparent;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.ags-footer__privacy:hover,
+.ags-footer__privacy:focus-visible {
+  color: var(--ags-fg);
+  border-bottom-color: rgba(244, 241, 234, 0.45);
 }
 
 .ags-footer__logo {
@@ -525,6 +549,11 @@ canvas {
   .ags-footer__row {
     align-items: center;
     gap: 0.9rem;
+  }
+  .ags-footer__privacy {
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    align-self: center;
   }
   .ags-footer__logo img {
     width: clamp(5.25rem, 25.5vw, 8.25rem);
@@ -1035,4 +1064,111 @@ canvas {
   .ags-event--large .ags-event__bio {
     max-width: min(100%, 72ch);
   }
+}
+
+/* ── Legal notice ─────────────────────────────────────────────────────────
+   The privacy notice and personal-data statement. Set for reading rather than
+   for the poster voice the rest of the site uses: sentence case, a book
+   measure, and enough leading to get through it. */
+.ags-legal {
+  max-width: 62ch;
+}
+.ags-legal__title {
+  margin: 2.2rem 0 0.2rem;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.92rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ags-accent);
+}
+.ags-legal__title:first-child {
+  margin-top: 0;
+}
+.ags-legal__section {
+  margin-top: 1.35rem;
+}
+.ags-legal__h {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.84rem;
+  letter-spacing: 0.02em;
+  color: var(--ags-fg);
+}
+.ags-legal__para {
+  margin: 0 0 0.7rem;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--ags-fg);
+  opacity: 0.85;
+}
+.ags-legal__list {
+  margin: 0 0 0.8rem;
+  padding-left: 1.1rem;
+  list-style: none;
+}
+.ags-legal__list li {
+  position: relative;
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--ags-fg);
+  opacity: 0.85;
+}
+.ags-legal__list li::before {
+  content: "—";
+  position: absolute;
+  left: -1.1rem;
+  color: var(--ags-muted);
+}
+.ags-legal__contact {
+  margin: 2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 241, 234, 0.14);
+  font-size: 0.78rem;
+  color: var(--ags-muted);
+}
+
+/* ── Colophon ─────────────────────────────────────────────────────────────
+   Sits at the end of the privacy panel: how the site was made, its credits and
+   the AI disclosure. It used to live in About, but About is about the festival
+   — the website's own account of itself belongs beside the notice. */
+.ags-colophon__credits {
+  margin: 1.1rem 0 0;
+}
+.ags-colophon__row {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(244, 241, 234, 0.1);
+}
+.ags-colophon__label {
+  margin: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ags-muted);
+}
+.ags-colophon__value {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ags-fg);
+}
+@media (max-width: 480px) {
+  .ags-colophon__row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
+
+/* Roster-card bio paragraphs. Matches what the inline style used to be, now
+   that several bios run to more than one paragraph. */
+.ags-bio__para {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ags-fg);
+  opacity: 0.85;
 }
