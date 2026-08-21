@@ -145,13 +145,17 @@ export const SCHEDULE: ScheduleDay[] = [
       {
         venue: "Dan Electro’s Guitar Bar",
         slots: [
-          { time: "8 PM", title: "Doors open", kind: "social" },
           {
+            // Doors are at 8 PM; the separate "Doors open" slot was dropped
+            // (it earned an island of its own, which it didn't warrant) and
+            // folded into this entry's note instead.
             time: "9 PM–12:30 AM",
-            title: "Late show",
+            // Newlines are break hints for the island's curved type (see
+            // ui/curved/curvedText). Everywhere else they collapse to spaces.
+            title: "Final Concert @\nDan Electro’s\nGuitar Bar",
             // Set order confirmed by Chapman, Aug 14.
             performers: "Brad Allen Williams · Kelly Doyle · Aurum Son",
-            note: "Brad Allen Williams opens, Kelly Doyle second, Aurum Son closes. $10 suggested donation. No one turned away.",
+            note: "Doors 8 PM. Brad Allen Williams opens, Kelly Doyle second, Aurum Son closes. $10 suggested donation. No one turned away.",
             // Dan Electro's ticketing page, announced Aug 18. NB: the venue's
             // own prices don't match the $10 suggested donation — Chapman
             // flagged it with Shaun, so this note may need a revisit.

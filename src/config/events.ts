@@ -107,6 +107,23 @@ export const EVENTS: readonly FestivalEvent[] = ALL;
 
 /** The event a given authored slot became. Keyed by object identity, so it
  *  can't go stale the way a string key would when copy is edited. */
+/**
+ * The venue as a line of copy — or nothing, when the title already names it.
+ *
+ * Some events are billed BY their venue: the Friday closer is "Final Concert @
+ * Dan Electro's Guitar Bar", so printing the venue underneath says the same
+ * words twice, on the island and again on the opened card. Containment rather
+ * than equality, because the billing usually wraps the venue in something
+ * ("Final Concert @ …") rather than being it exactly.
+ */
+export function venueLine(event: FestivalEvent): string | undefined {
+  // Whitespace-normalised on both sides: a title may carry newline break hints
+  // for the island's curved type, and "Dan Electro's\nGuitar Bar" has to still
+  // count as containing "Dan Electro's Guitar Bar".
+  const flat = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+  return flat(event.title).includes(flat(event.venueName)) ? undefined : event.venueName;
+}
+
 export function eventForSlot(slot: ScheduleSlot): FestivalEvent | undefined {
   return BY_SLOT.get(slot);
 }

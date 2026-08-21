@@ -344,38 +344,76 @@ canvas {
   right: 0;
   bottom: calc(env(safe-area-inset-bottom) + clamp(1.2rem, 4vh, 2.6rem));
   z-index: 6;
-  /* Named areas so the mobile rearrangement is a one-line change rather than
-     a reshuffle of every child. */
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  grid-template-areas: "name logo credit";
-  /* One bottom edge for all three columns — mixed alignment (name and credit
-     on the baseline, logo centred) is what made the row sit unevenly. */
-  align-items: end;
-  gap: 1rem;
+  /* A column: the festival name as its own band, then the marks beneath it. */
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.7rem, 1.8vw, 1.3rem);
   padding: 0 clamp(1rem, 4vw, 2.5rem);
-  opacity: 0;
   pointer-events: none;
-  will-change: opacity, transform;
+  will-change: transform;
 }
 
-.ags-footer__name {
-  grid-area: name;
+/*
+ * The festival name, full width under the guitar.
+ *
+ * Sized to land on ONE line at 1920 and never to break past two below that.
+ * The fluid middle term does the work — at 4.2vw the string measures 1568px
+ * against the 1840px available inside the gutters — the min stops it
+ * collapsing on a phone (where it takes the second line), and the max keeps it
+ * from outgrowing an ultrawide.
+ *
+ * No `text-wrap: balance`. It reads like the obvious choice here and it isn't:
+ * Chromium balances by equalising line LENGTH, and it will happily add a line
+ * to do it — at 390px it turned a legitimate two-line break into three. Plain
+ * greedy wrapping always uses the fewest lines that fit, which is the actual
+ * requirement.
+ */
+.ags-footer__lockup {
+  /* Its own 300ms fade, triggered by the threshold crossing in Footer.tsx.
+     This is why the footer element itself no longer carries the scroll-tied
+     opacity — nesting the two would multiply them, and the name would arrive
+     at whatever fraction the marks happened to be at. */
+  opacity: 0;
+  transition: opacity 300ms ease;
+  will-change: opacity;
   margin: 0;
-  align-self: end;
-  /* One line — no wrapping. */
-  white-space: nowrap;
+  text-align: center;
   font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.05;
-  letter-spacing: 0.02em;
+  font-weight: 400;
+  font-size: clamp(1.15rem, 4.2vw, 5.5rem);
+  line-height: 1.06;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ags-fg);
-  opacity: 0.9;
+}
+
+/* The marks. One bottom edge for both columns — mixed alignment is what made
+   this row sit unevenly. With the name gone the Rice mark moves over into the
+   space it left, and the studio credit stays hard right. */
+.ags-footer__lockup[data-shown="true"] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ags-footer__lockup {
+    transition: none;
+  }
+}
+
+/* The marks keep the scroll-tied fade: drag the page and they follow. */
+.ags-footer__row {
+  opacity: 0;
+  will-change: opacity;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "logo credit";
+  align-items: end;
+  gap: 1rem;
 }
 
 .ags-footer__logo {
   grid-area: logo;
+  align-self: end;
 }
 .ags-footer__logo img {
   /* 25% down from clamp(11rem, 26vw, 20rem) — all three stops scaled so it
@@ -481,23 +519,16 @@ canvas {
 /* Phones: name over logo in one column, and the SO monogram pinned bottom
    right beside them. The full wordmark is too wide to sit next to anything at
    this size, so the credit becomes the monogram instead of shrinking. */
+/* Phones: the marks sit on one row, the wordmark drops (no room beside
+   anything at this size) and the monogram carries the credit alone. */
 @media (max-width: 640px) {
-  .ags-footer {
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "name credit"
-      "logo credit";
-    align-items: start;
-    gap: 0.5rem 0.9rem;
-  }
-  .ags-footer__name {
-    font-size: 0.5rem;
-    align-self: end;
+  .ags-footer__row {
+    align-items: center;
+    gap: 0.9rem;
   }
   .ags-footer__logo img {
     width: clamp(5.25rem, 25.5vw, 8.25rem);
   }
-  /* Phone: the monogram carries it alone — no room for the wordmark too. */
   .ags-footer__credit-full {
     display: none;
   }

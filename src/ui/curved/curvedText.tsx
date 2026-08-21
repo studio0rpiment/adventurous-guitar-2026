@@ -47,8 +47,34 @@ export interface CurvedOptions {
 
 /** Wrap onto multiple lines at a FIXED size — nothing shrinks to fit, so
  *  every line stays the size it was designed at and the box grows instead. */
-export function wrapToWidth(text: string, size: number, contentW: number): string[] {
-  const maxChars = Math.max(6, Math.floor(contentW / (size * 0.58)));
+export function wrapToWidth(
+  text: string,
+  size: number,
+  contentW: number,
+  fullW: number = contentW,
+): string[] {
+  const fits = (w: number) => Math.max(6, Math.floor(w / (size * 0.58)));
+  const maxChars = fits(contentW);
+  // A hard segment is allowed the whole object, padding included — the author
+  // asked for that line, and a line that merely eats into the inset still sits
+  // on the island. Only one that would run off the edge gets re-broken.
+  const hardMax = fits(fullW);
+
+  // A newline in the copy is a HARD break — the one place an editor can say
+  // where a line should turn. Character-count wrapping can't know that "Final
+  // Concert @ Dan Electro's Guitar Bar" wants to break after the @ and again
+  // after the venue's first half; nothing but a person's eye can. Each hard
+  // segment is still soft-wrapped below if it's too long on its own, so a break
+  // hint can never push a line off the island.
+  const segments = text.split("\n");
+  const hard = segments.length > 1;
+
+  return segments
+    .flatMap((segment) => softWrap(segment.trim(), hard ? hardMax : maxChars))
+    .filter(Boolean);
+}
+
+function softWrap(text: string, maxChars: number): string[] {
   const words = text.split(/\s+/);
   const out: string[] = [];
   let cur = "";
@@ -76,7 +102,7 @@ export function layoutCurved(
   let i = 0;
 
   for (const f of fields) {
-    for (const text of wrapToWidth(f.text, f.size, contentW)) {
+    for (const text of wrapToWidth(f.text, f.size, contentW, o.width)) {
       y += f.size;
       lines.push({
         text,

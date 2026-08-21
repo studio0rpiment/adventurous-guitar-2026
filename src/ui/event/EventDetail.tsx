@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FestivalEvent } from "@/config/events";
+import { venueLine, type FestivalEvent } from "@/config/events";
 import { eventParticipants } from "@/config/participants";
 import { ParticipantChip } from "@/ui/event/ParticipantChip";
 import { ParticipantBio } from "@/ui/event/ParticipantBio";
@@ -41,6 +41,8 @@ export function EventDetail({
   const [openId, setOpenId] = useState<string | null>(null);
   const people = eventParticipants(event);
   const venue = event.venue;
+  // Suppressed when the event is billed AS its venue — see events.venueLine.
+  const venueName = venueLine(event);
 
   // The raw performers string is the fallback, not the default: if we matched
   // people in the roster their chips say it better. It still shows when nobody
@@ -69,12 +71,17 @@ export function EventDetail({
             <h3 className="ags-event__title">{event.title}</h3>
           )}
 
-          <div className="ags-event__venue">
-            {event.venueName}
-            {event.venueNote && (
-              <span className="ags-event__venue-note"> — {event.venueNote}</span>
-            )}
-          </div>
+          {(venueName || event.venueNote) && (
+            <div className="ags-event__venue">
+              {venueName}
+              {event.venueNote && (
+                <span className="ags-event__venue-note">
+                  {venueName ? " — " : ""}
+                  {event.venueNote}
+                </span>
+              )}
+            </div>
+          )}
         </>
       )}
 

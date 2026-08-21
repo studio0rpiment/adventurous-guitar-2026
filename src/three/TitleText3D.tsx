@@ -14,17 +14,13 @@ const DATE_FS = 0.58;
 const DATE_GAP = 1.3; // gap from last title line down to the date
 const Z = 6.5; // in front of the cables so it floats on top
 
-/**
- * Where the lockup's own centre sits, as a fraction of the visible half-height
- * ABOVE the middle of the frame. 0 would centre it; this lifts it into the
- * upper third so the name and the dates read the moment the page opens.
- */
-const LIFT = 0.16;
+const CY = -0.8; // resting height of the lockup at scroll 0
+const RISE = 9; // world units the lockup rises over one viewport of scroll
 
 /* Bands of the frame kept clear, as fractions of its full height. The top one
-   is the HUD's: the pick plate and the nav sit there, and a title line running
-   under them is the reason the lockup can't simply be pushed as high as it
-   fits. */
+   is the HUD's — the pick plate and the nav sit there — and the bottom one is
+   what the date needs. These are only ever used to PULL THE LOCKUP BACK into
+   frame; where there's room for it at CY, nothing here does anything. */
 const TOP_INSET = 0.16;
 const BOTTOM_INSET = 0.08;
 
@@ -38,24 +34,24 @@ const DATE_Y = lineY(LINES.length - 1) - DATE_GAP;
 const TOP = lineY(0) + FS * 0.55;
 const BOTTOM = DATE_Y - DATE_FS * 0.75;
 const HEIGHT = TOP - BOTTOM;
-const MID = (TOP + BOTTOM) / 2;
 
 /**
  * The title lockup as 3D text floating in front of the cables. It scrolls up
  * (and out of frame) as the page scrolls, handing off to the island content.
  *
- * **Its size and place are fitted to the frame, not fixed in world units.**
- * They used to be constants, and that broke quietly at both ends: the lockup
- * sits at z=6.5, well in front of the plane the camera framing describes, so
- * it's magnified — on a 900px-tall desktop window "OCTOBER 8–9, 2026" was
- * pushed off the bottom of the viewport entirely, while a portrait phone
- * (camera pulled right back to fit the socket spread) saw the same lockup as a
- * small thing adrift below the middle. One number can't serve both.
+ * **CY is still the resting height; it's now held inside the frame.** The
+ * lockup sits at z=6.5, well in front of the plane the camera framing
+ * describes, so it's magnified by d/(d−z) — 1.76× at the desktop distance of
+ * 15. The frame it actually has to fit inside there is only ~4 world units
+ * tall, not the ~7 the framing numbers suggest, and "OCTOBER 8–9, 2026" fell
+ * off the bottom of a 900px-tall window. A portrait phone has the opposite
+ * problem and no problem: the camera is pulled right back to fit the socket
+ * spread, so there's slack to spare.
  *
- * So: scale down only if it would overfill the frame, put its centre a fixed
- * FRACTION of the frame above the middle, and rise by enough to actually clear
- * the top — the old fixed RISE was about right for a desktop and left the
- * lockup lingering over the first islands on a phone.
+ * So this is a CLAMP, not a re-placement. Where the lockup fits at CY —
+ * every phone, and any reasonably tall window — the maths below returns CY
+ * unchanged and nothing moves. It only bites when the frame is too short, and
+ * then only by as much as it takes to bring the date back into view.
  */
 export function TitleText3D() {
   const group = useRef<THREE.Group>(null);
@@ -73,23 +69,21 @@ export function TitleText3D() {
     const top = halfH - TOP_INSET * frame;
     const bottom = -halfH + BOTTOM_INSET * frame;
 
-    // Shrink only if the lockup can't fit between those bands at all — a tall
-    // portrait frame has room to spare, a 900px desktop window doesn't.
+    // Shrink only if the lockup can't fit between those bands at all. Nothing
+    // in the current range of viewports hits this; it's the floor under an
+    // unusually short window, where clamping alone can't win.
     const s = Math.min(1, (top - bottom) / HEIGHT);
 
-    // Lift it toward the upper third, then hold it inside the bands. The lift
-    // is what a phone gets (plenty of slack); the clamp is what a short desktop
-    // window gets, and it's why the date stopped falling off the bottom.
-    const wanted = LIFT * halfH - MID * s;
+    // The only intervention: hold CY between the highest and lowest positions
+    // that keep the whole lockup inside those bands. Where it already fits,
+    // this returns CY and nothing moves.
     const highest = top - TOP * s;
     const lowest = bottom - BOTTOM * s;
 
     return {
       scale: s,
-      restY: Math.min(highest, Math.max(lowest, wanted)),
-      // Enough to carry the whole lockup past the top edge over one viewport
-      // of scroll, whatever that viewport is.
-      rise: halfH + HEIGHT * s,
+      restY: Math.min(highest, Math.max(lowest, CY)),
+      rise: RISE,
     };
   }, [camera, size]);
 

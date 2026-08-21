@@ -1,4 +1,4 @@
-import type { FestivalEvent } from "@/config/events";
+import { venueLine, type FestivalEvent } from "@/config/events";
 
 /** The few lines an island carries at rest. */
 export interface IslandSummary {
@@ -16,10 +16,11 @@ export interface IslandSummary {
  * or the turn doesn't read as the same object.
  */
 export function islandSummary(event: FestivalEvent): IslandSummary {
+  const venue = venueLine(event);
   return {
     top: event.when,
     title: event.title,
-    sub: event.performers ?? event.venueName,
-    note: event.performers ? event.venueName : event.note,
+    sub: event.performers ?? venue,
+    note: event.performers ? venue : event.note,
   };
 }
