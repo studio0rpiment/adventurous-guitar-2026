@@ -30,5 +30,13 @@
       0.4
     ],
     "zoom": 0.7
+  },
+  "DoubleMono.jpg": {
+    "out": "doublemono",
+    "focus": [
+      0.5,
+      0.5
+    ],
+    "zoom": 1.0
   }
 }

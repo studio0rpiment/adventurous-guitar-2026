@@ -75,6 +75,28 @@ export const PARTICIPANTS: Participant[] = [
     bio: "Erik Broess (he/him) is a scholar of popular music, specializing in rock, metal, and jazz from the perspectives of music technology studies and sound studies. He earned his Ph.D. in Music History from the University of Pennsylvania, where his thesis, “Unobtainable: Electric Guitar Gear & The Mythology of Tone,” explored the cultural significance of tone for electric guitarists. Currently, he is engaged in a wide-ranging book project that situates analog electric guitar gear within the global electronics industry since the 1950s. This ambitious project explores the underlying ideologies that shape guitarists’ discourse on sound, examining various instruments, building materials, and manufacturing practices that contribute to the elusive concept of “good tone.”\n\nHis scholarly contributions include research on Fender’s “Tweed” era (1948-1960), published in the Journal of the Society for American Music, and a chapter on guitar pedals and tone in the forthcoming Cambridge Companion to the Electric Guitar. In 2021, he earned the “Lise Waxer Student Paper Prize” from the Society for Ethnomusicology’s Popular Music Section and was recognized as a runner-up for the “Wong Tolbert Prize” by the Society for Ethnomusicology’s Section on the Status of Women.\n\nBeyond his research achievements, Dr. Broess is a highly regarded educator, having received numerous teaching honors, including Tufts University’s “Marshall Hochhauser Prize” and the University of Pennsylvania’s “Dean’s Award for Distinguished Teaching by a Graduate Student.” He served as an inaugural fellow for “Equitable and Inclusive Teaching” at the University of Pennsylvania, during which he developed seminars aimed at fostering equity and inclusion in higher education. He brings to the Shepherd School of Music courses on popular music, world music, and music technology.",
   },
   {
+    id: "chen",
+    name: "Wenshi Chen",
+    sortName: "Chen, Wenshi",
+    role: "Musicologist · Shepherd School of Music, Rice University",
+    // Bio + headshot arrived Aug 31 (via Chapman, Sep 1) as attachments — not yet transcribed / cropped.
+  },
+  {
+    id: "doublemono",
+    name: "DOUBLEMONO",
+    sortName: "DOUBLEMONO",
+    role: "Fiona Xue Ju — live electronics · Drew Farrar — electric guitar",
+    image: "/img/bioPics/doublemono.webp",
+    // Sent by Fiona Xue Ju to Chapman, Aug 19 — verbatim.
+    bio: "DOUBLEMONO is an experimental electronic music duo by Fiona Xue Ju on live electronics and Drew Farrar on electric guitar. The duo explores digital and analog electronics, improvisation, and interactive systems interrogating relationships between sound, gesture, technology, and perception.\n\nFiona is a composer, media artist, improviser, and performer whose interdisciplinary practice combines electronic music, performance, visual arts, and immersive technologies. She studied at Oberlin Conservatory and CNSMD Lyon and is currently a Ph.D. candidate in Experimental Music and Digital Media at Louisiana State University. Drew is a composer, guitarist, improviser, and educator whose work explores physical movement, spectral techniques, agency, and otherness. His current interests include computer-assisted composition, digital signal processing, and guitar effects pedals.\n\nDOUBLEMONO has presented work at Electric LaTex and the International Computer Music Conference (ICMC).",
+    links: [{ label: "xjcomposer.com", url: "https://www.xjcomposer.com/" }],
+    members: [
+      { name: "Fiona Xue Ju", role: "Live electronics" },
+      { name: "Drew Farrar", role: "Electric guitar" },
+    ],
+    aliases: ["Double Mono", "Fiona Xue Ju", "Drew Farrar"],
+  },
+  {
     id: "doyle",
     name: "Kelly Doyle",
     sortName: "Doyle, Kelly",
@@ -140,7 +162,10 @@ export const PARTICIPANTS: Participant[] = [
     id: "ma",
     name: "Aisling Ma",
     sortName: "Ma, Aisling",
-    role: "Student composer",
+    role: "Composer / guitarist · Rice University",
+    // Sent by Aisling to Chapman, Aug 24 — verbatim.
+    bio: "Haoyang Aisling Ma (b.2005) is a Chinese composer/guitarist studying at Rice University.\n\nAs a composer, her works have been performed by ensembles and soloist such as Ensemble Modern, Divertimento Ensemble, Mivos Quartet, Kinetic Ensemble, members of Boston Philharmonic Orchestra and China Philharmonic Orchestra. She has been selected as a composition fellow in major festivals, such as Barcelona Modern (2025), International Workshop for Young Composers (2024), Valencia International Performing Arts Summer Festival (2024), St. Petersburg International Festival (2026). As a guitarist, she has maintained an active performance schedule throughout her academic career, making appearances in diverse collegiate and institutional settings.",
+    aliases: ["Haoyang Aisling Ma"],
   },
   {
     id: "mcculloch",
