@@ -81,7 +81,7 @@ export const SCHEDULE: ScheduleDay[] = [
             time: "7 PM",
             title: "Concert",
             performers:
-              "Chapman Welch / Thomas Helton, Sandy Ewen, Kevin Patton, DOUBLEMONO, Asher Lurie, Aisling Ma, Kelly Doyle (?), Brad Allen Williams (?)",
+              "Chapman Welch / Thomas Helton, Sandy Ewen, Kevin Patton, DOUBLEMONO, Asher Lurie, Aisling Ma, Kelly Doyle, Brad Allen Williams",
             kind: "performance",
           },
         ],

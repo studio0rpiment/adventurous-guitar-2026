@@ -79,7 +79,9 @@ export const PARTICIPANTS: Participant[] = [
     name: "Wenshi Chen",
     sortName: "Chen, Wenshi",
     role: "Musicologist · Shepherd School of Music, Rice University",
-    // Bio + headshot arrived Aug 31 (via Chapman, Sep 1) as attachments — not yet transcribed / cropped.
+    image: "/img/bioPics/wenshi-chen.webp",
+    // Sent by Wenshi to Chapman, Aug 31, as a PDF (docs/) — verbatim.
+    bio: "Wenshi Chen is an undergraduate senior at Rice University studying Musicology and Science & Technology Studies. Her research brings together musicology, cognitive science, philosophy, and technology to explore how people create and interact with music. She is especially interested in human-machine creativity, musical cognition, music information retrieval (MIR), and the growing role of AI and computational technologies in musical practice. Her current research focuses on live coding, machine learning-assisted improvisation, and musical memory, with a particular interest in how creativity and agency emerge through interactions between human performers and computational systems. At Rice, she designed and taught Computer Music and Creative Coding Performance, an undergraduate course introducing students to live coding and creative approaches to making music with code. She also works as a student researcher in Rice’s Music, Mind & Body Lab, contributing to research on the neural dynamics of creativity in live performance, and in the Critical Media Lab, where she uses computational methods to study environmental themes in popular music. Her research on live coding has taken her to San Francisco, Chicago, Barcelona, and the International Computer Music Conference in Hamburg, and she has presented her work at national and regional conferences in musicology and music technology.",
   },
   {
     id: "doublemono",
@@ -163,6 +165,7 @@ export const PARTICIPANTS: Participant[] = [
     name: "Aisling Ma",
     sortName: "Ma, Aisling",
     role: "Composer / guitarist · Rice University",
+    image: "/img/bioPics/aisling-ma.webp",
     // Sent by Aisling to Chapman, Aug 24 — verbatim.
     bio: "Haoyang Aisling Ma (b.2005) is a Chinese composer/guitarist studying at Rice University.\n\nAs a composer, her works have been performed by ensembles and soloist such as Ensemble Modern, Divertimento Ensemble, Mivos Quartet, Kinetic Ensemble, members of Boston Philharmonic Orchestra and China Philharmonic Orchestra. She has been selected as a composition fellow in major festivals, such as Barcelona Modern (2025), International Workshop for Young Composers (2024), Valencia International Performing Arts Summer Festival (2024), St. Petersburg International Festival (2026). As a guitarist, she has maintained an active performance schedule throughout her academic career, making appearances in diverse collegiate and institutional settings.",
     aliases: ["Haoyang Aisling Ma"],
