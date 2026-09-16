@@ -51,6 +51,24 @@ export interface OngoingItem {
   note?: string;
 }
 
+/* ── Tickets ───────────────────────────────────────────────────────────────
+   The one ticketed show. Its link is surfaced three times — the concert slot,
+   Dan Electro's venue entry, and a standalone island at the top of the
+   schedule stream — all from this one record so the URL can't drift.
+   Chapman re-sent the link Sep 16 asking that it be on the site. */
+
+export const TICKETS = {
+  url: "https://www.stubwire.com/e/39361/theadventurouselectricguitarfestivalwbradallenwilliamskellydoyleandaurumson/danelectros/",
+  label: "Tickets",
+  /** Island copy (see ui/islands/LinkIsland). */
+  island: {
+    top: "Fri, Oct 9",
+    title: "Tickets",
+    sub: "Final Concert · Dan Electro’s Guitar Bar",
+    note: "$10 suggested donation · No one turned away",
+  },
+} as const;
+
 // Runs across both festival days.
 export const ONGOING: OngoingItem[] = [
   {
@@ -163,11 +181,12 @@ export const SCHEDULE: ScheduleDay[] = [
             // Set order confirmed by Chapman, Aug 14.
             performers: "Brad Allen Williams · Kelly Doyle · Aurum Son",
             note: "Doors 8 PM. Brad Allen Williams opens, Kelly Doyle second, Aurum Son closes. $10 suggested donation. No one turned away.",
-            // Dan Electro's ticketing page, announced Aug 18. NB: the venue's
-            // own prices don't match the $10 suggested donation — Chapman
-            // flagged it with Shaun, so this note may need a revisit.
-            link: "https://www.stubwire.com/e/39361/theadventurouselectricguitarfestivalwbradallenwilliamskellydoyleandaurumson/danelectros/",
-            linkLabel: "Tickets",
+            // Dan Electro's ticketing page, announced Aug 18; Chapman re-sent it
+            // Sep 16. StubWire shows $13 because a new FCC rule makes venues
+            // advertise ticket + fees together ($10 + $3; seated $15 + fees) —
+            // Shaun explained this Sep 3 and Chapman accepted it.
+            link: TICKETS.url,
+            linkLabel: TICKETS.label,
             kind: "performance",
           },
         ],
@@ -217,10 +236,7 @@ export const VENUES: Venue[] = [
     url: "https://danelectros.com/",
     mapUrl: "https://maps.google.com/?q=Dan+Electro%27s+Guitar+Bar+Houston",
     links: [
-      {
-        label: "Tickets",
-        url: "https://www.stubwire.com/e/39361/theadventurouselectricguitarfestivalwbradallenwilliamskellydoyleandaurumson/danelectros/",
-      },
+      { label: TICKETS.label, url: TICKETS.url },
       { label: "Facebook event", url: "https://www.facebook.com/share/1HkX3jiQCx/" },
       {
         label: "Spotify playlist",

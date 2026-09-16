@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
+import { islandFrameStyle, type IslandAlign } from "./frame";
 
-export type IslandAlign = "flex-start" | "center" | "flex-end";
+export type { IslandAlign } from "./frame";
 
 /**
  * Positioned wrapper for one scroll-stream island: alignment, tilt, overlap and
@@ -58,23 +59,7 @@ export function FloatingIsland({
           onOpen(e.currentTarget);
         }
       }}
-      style={{
-        alignSelf: align,
-        marginTop: index === 0 ? 0 : "var(--ags-island-overlap)",
-        width: "var(--ags-island-w)",
-        // Later islands sit above earlier ones by default; a raised island
-        // jumps clear of the whole stack.
-        zIndex: raised ? 999 : index + 1,
-        position: "relative",
-        cursor: "pointer",
-        pointerEvents: "auto",
-        transform: `rotate(${rotate}deg)`,
-        filter: raised
-          ? "drop-shadow(0 18px 44px rgba(0, 0, 0, 0.8))"
-          : "drop-shadow(0 12px 34px rgba(0, 0, 0, 0.65))",
-        transition: "filter 0.2s ease",
-        WebkitTapHighlightColor: "transparent",
-      }}
+      style={islandFrameStyle({ index, align, rotate, raised })}
     >
       {children}
     </div>

@@ -17,10 +17,14 @@ export interface IslandSummary {
  */
 export function islandSummary(event: FestivalEvent): IslandSummary {
   const venue = venueLine(event);
+  const note = event.performers ? venue : event.note;
+  // A slot with its own link (the ticketed concert) says so on its face, so
+  // the reader knows the card has somewhere to go before opening it.
+  const cue = event.link ? `${event.linkLabel ?? "Details"} ↗` : undefined;
   return {
     top: event.when,
     title: event.title,
     sub: event.performers ?? venue,
-    note: event.performers ? venue : event.note,
+    note: [note, cue].filter(Boolean).join(" · ") || undefined,
   };
 }
