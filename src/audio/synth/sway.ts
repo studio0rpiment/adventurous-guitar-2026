@@ -14,7 +14,7 @@ export const createSwayState = (): SwayState => ({ rx: 0, ry: 0, rz: 0, primed: 
 export interface Sway {
   /** Depth displacement (toward the viewer +), -1..1 (signed). */
   z: number;
-  /** Vertical displacement, 0..1 (how far, either way). */
+  /** Vertical displacement, 0..1 (how far, either way) — saw → square. */
   y: number;
   /** Total displacement, 0..1. */
   mag: number;

@@ -1,6 +1,6 @@
 import { CableVoice } from "@/audio/synth/CableVoice";
 import { SYNTH } from "@/audio/synth/config";
-import { VOICES, voiceHz } from "@/audio/synth/tuning";
+import { VOICES, voiceNotes } from "@/audio/synth/tuning";
 
 /**
  * The cable synth's shared state: one AudioContext, one output chain, one voice
@@ -27,8 +27,7 @@ function build(c: AudioContext) {
   const comp = c.createDynamicsCompressor();
   master.connect(lp).connect(comp).connect(c.destination);
   bus = master;
-  // higher harmonics sit a little lower so the chord doesn't go shrill
-  voices = VOICES.map((v, i) => new CableVoice(c, master, voiceHz(i), 1 / Math.sqrt(v.harmonic)));
+  voices = VOICES.map((_, i) => new CableVoice(c, master, voiceNotes(i)));
 }
 
 // Pause the audio thread when the tab is hidden (event-driven).

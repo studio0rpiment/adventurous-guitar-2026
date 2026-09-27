@@ -37,6 +37,6 @@ export const SYNTH = {
   restFollow: 0.02,
 
   /** Output. */
-  master: 0.18,
+  master: 0.14,
   lowpassHz: 4200,
 } as const;

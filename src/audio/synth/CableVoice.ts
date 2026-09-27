@@ -1,49 +1,62 @@
 import { SYNTH } from "@/audio/synth/config";
 
-const SHAPES: OscillatorType[] = ["triangle", "sawtooth", "square"];
-/** Rough loudness match: saws and squares carry more energy than a triangle. */
-const SHAPE_TRIM = [1, 0.7, 0.55];
+const SHAPES: OscillatorType[] = ["sawtooth", "square"];
+/** Rough loudness match: a square carries more energy than a saw. */
+const SHAPE_TRIM = [1, 0.75];
 /** Only touch an AudioParam when the value actually moved this much. */
 const EPS = 1e-3;
 
+export interface VoiceNote {
+  hz: number;
+  /** Relative level of this note within the voice. */
+  amp: number;
+}
+
 /**
- * One cable's voice: a triangle, a saw and a square at the same pitch, cross-
- * faded so the waveform can morph continuously (Web Audio can't morph a single
- * oscillator's type). Pitch, shape and level are set from the cable's sway.
+ * One cable's voice: one or more notes (e.g. a harmonic and its upper partner),
+ * each sounded as a saw AND a square at the same pitch. The two shapes are
+ * crossfaded as two buses, so the waveform morphs continuously saw ↔ square
+ * (Web Audio can't morph a single oscillator's type). Pitch bend moves every
+ * note together, so the voice keeps its internal ratios.
  */
 export class CableVoice {
-  private oscs: OscillatorNode[];
-  private mix: GainNode[];
+  private oscs: { osc: OscillatorNode; hz: number }[] = [];
+  private shapeBus: GainNode[];
   private out: GainNode;
   private last = { ratio: 1, shape: -1, level: -1 };
 
   constructor(
     private ctx: AudioContext,
     dest: AudioNode,
-    private hz: number,
-    amp: number,
+    notes: VoiceNote[],
   ) {
     this.out = ctx.createGain();
     this.out.gain.value = 0;
-    const trim = ctx.createGain();
-    trim.gain.value = amp;
-    this.out.connect(trim).connect(dest);
+    this.out.connect(dest);
 
-    this.oscs = SHAPES.map((type) => {
-      const o = ctx.createOscillator();
-      o.type = type;
-      o.frequency.value = hz;
-      return o;
-    });
-    this.mix = SHAPES.map((_, i) => {
+    this.shapeBus = SHAPES.map((_, i) => {
       const g = ctx.createGain();
       g.gain.value = i === 0 ? SHAPE_TRIM[0] : 0;
+      g.connect(this.out);
       return g;
     });
-    this.oscs.forEach((o, i) => {
-      o.connect(this.mix[i]).connect(this.out);
-      o.start();
-    });
+
+    for (const n of notes) {
+      const noteGain = SHAPES.map((_, i) => {
+        const g = ctx.createGain();
+        g.gain.value = n.amp;
+        g.connect(this.shapeBus[i]);
+        return g;
+      });
+      SHAPES.forEach((type, i) => {
+        const o = ctx.createOscillator();
+        o.type = type;
+        o.frequency.value = n.hz;
+        o.connect(noteGain[i]);
+        o.start();
+        this.oscs.push({ osc: o, hz: n.hz });
+      });
+    }
   }
 
   /** ratio: pitch multiplier (1 = in tune). */
@@ -51,23 +64,19 @@ export class CableVoice {
     if (Math.abs(ratio - this.last.ratio) < EPS * 0.1) return;
     this.last.ratio = ratio;
     const t = this.ctx.currentTime;
-    for (const o of this.oscs) o.frequency.setTargetAtTime(this.hz * ratio, t, SYNTH.tauPitch);
+    for (const { osc, hz } of this.oscs) osc.frequency.setTargetAtTime(hz * ratio, t, SYNTH.tauPitch);
   }
 
-  /** shape: 0 triangle → 0.5 saw → 1 square. */
+  /** shape: 0 sawtooth → 1 square (equal-power crossfade). */
   setShape(shape: number) {
     if (Math.abs(shape - this.last.shape) < EPS) return;
     this.last.shape = shape;
-    const w = [
-      Math.max(0, 1 - 2 * shape),
-      1 - Math.abs(2 * shape - 1),
-      Math.max(0, 2 * shape - 1),
-    ];
+    const w = [Math.cos((shape * Math.PI) / 2), Math.sin((shape * Math.PI) / 2)];
     const t = this.ctx.currentTime;
-    this.mix.forEach((g, i) => g.gain.setTargetAtTime(w[i] * SHAPE_TRIM[i], t, SYNTH.tauShape));
+    this.shapeBus.forEach((g, i) => g.gain.setTargetAtTime(w[i] * SHAPE_TRIM[i], t, SYNTH.tauShape));
   }
 
-  /** level: 0..1. Rises slowly (swells), falls quickly (ducks). */
+  /** level: 0..1. Rise/fall speeds from SYNTH.tauRise / tauFall. */
   setLevel(level: number) {
     if (Math.abs(level - this.last.level) < EPS) return;
     const tau = level > this.last.level ? SYNTH.tauRise : SYNTH.tauFall;
@@ -76,11 +85,11 @@ export class CableVoice {
   }
 
   dispose() {
-    this.oscs.forEach((o) => {
-      o.stop();
-      o.disconnect();
+    this.oscs.forEach(({ osc }) => {
+      osc.stop();
+      osc.disconnect();
     });
-    this.mix.forEach((g) => g.disconnect());
+    this.shapeBus.forEach((g) => g.disconnect());
     this.out.disconnect();
   }
 }
