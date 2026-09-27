@@ -4,10 +4,10 @@ import { useDeviceGravity } from "@/physics/useDeviceGravity";
 /** Only phones/tablets have a motion sensor worth offering. */
 const TOUCH_QUERY = "(pointer: coarse)";
 
-const LABEL = { off: "Physics: off", on: "Physics: on", denied: "Motion blocked" } as const;
+const LABEL = { off: "Physics off", on: "Physics on", denied: "Motion blocked" } as const;
 
 /**
- * The opt-in for device gravity (behind ?physics). One tap asks for motion
+ * The opt-in for device gravity. One tap asks for motion
  * access (required on iOS) and hands the cables to the phone's real gravity;
  * another tap gives them back. Hidden where there's no touch screen.
  */

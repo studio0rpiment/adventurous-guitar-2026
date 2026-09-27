@@ -1,6 +1,6 @@
 # Device gravity for the cables (mobile) — plan
 
-_2026-09-27. Built behind the `?physics` URL flag (`?physics=flip` inverts the sensor sign). Files: `config/flags.ts`, `physics/gravity.ts`, `physics/useDeviceGravity.ts`, `ui/PhysicsToggle.tsx`; `stepRope` now takes a gravity vector._
+_2026-09-27. Live for all touch devices via the Physics button (`?physics=flip` still inverts the sensor sign). Files: `config/flags.ts`, `physics/gravity.ts`, `physics/useDeviceGravity.ts`, `ui/PhysicsToggle.tsx`; `stepRope` now takes a gravity vector._
 
 On mobile, after the visitor turns on "physics" (sensors), the plugs stay fixed
 in their sockets and the cables are pulled by the phone's real gravity. Held
