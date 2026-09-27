@@ -133,7 +133,7 @@ export const SCHEDULE: ScheduleDay[] = [
           },
           {
             time: "11 AM",
-            title: "Interesting sounds on a budget",
+            title: "Creativity is free: searching for new sounds without buying gear",
             performers: "Brad Allen Williams",
             kind: "talk",
           },

@@ -53,7 +53,7 @@ export function IslandField() {
         <LinkIsland
           id={TICKETS_ID}
           index={0}
-          align="center"
+          align="flex-end"
           rotate={2}
           raised={raisedId === TICKETS_ID}
           onRaise={() => setRaisedId(TICKETS_ID)}

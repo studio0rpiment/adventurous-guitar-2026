@@ -8,6 +8,7 @@ import { createDrapedRope, stepRope } from "./verlet";
 import { EXIT_LOCAL, JACK_AXIS, ROPE, TARGET_LEN } from "./constants";
 import { useConnection } from "@/three/connection/ConnectionContext";
 import { screenDistance } from "@/three/screen";
+import { worldGravity } from "@/physics/gravity";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
 const SEAT_PX = 46; // within this it seats (plugs in)
@@ -228,7 +229,7 @@ export function PatchCable({
       swayVel.multiplyScalar(SWAY_DECAY);
     }
 
-    stepRope(pts, e0.anchor, e1.anchor, seg);
+    stepRope(pts, e0.anchor, e1.anchor, seg, worldGravity);
 
     const mesh = cableRef.current;
     if (mesh) {

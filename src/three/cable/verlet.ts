@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import { ROPE } from "./constants";
 
+/** Plain downward pull, per step — what the cables use when no sensor drives it. */
+export const DEFAULT_GRAVITY = new THREE.Vector3(0, ROPE.gravity, 0);
+
 export interface RopePoint {
   p: THREE.Vector3;
   prev: THREE.Vector3;
@@ -9,7 +12,9 @@ export interface RopePoint {
 
 /**
  * One Verlet integration + constraint-relaxation step. The two ends are held at
- * the supplied anchors; interior points fall under gravity and settle. This runs
+ * the supplied anchors; interior points fall under `gravity` (a per-step world
+ * vector — straight down by default, or the phone's real gravity when the
+ * device-gravity flag is on) and settle. This runs
  * on the render tick (the one place a continuous sim legitimately needs a tick);
  * the grab that moves the anchors is event-driven.
  */
@@ -18,6 +23,7 @@ export function stepRope(
   anchorA: THREE.Vector3,
   anchorB: THREE.Vector3,
   seg: number,
+  gravity: THREE.Vector3 = DEFAULT_GRAVITY,
 ): void {
   const n = pts.length;
   for (let i = 0; i < n; i++) {
@@ -27,9 +33,9 @@ export function stepRope(
     const vy = (q.p.y - q.prev.y) * ROPE.damping;
     const vz = (q.p.z - q.prev.z) * ROPE.damping;
     q.prev.copy(q.p);
-    q.p.x += vx;
-    q.p.y += vy + ROPE.gravity;
-    q.p.z += vz;
+    q.p.x += vx + gravity.x;
+    q.p.y += vy + gravity.y;
+    q.p.z += vz + gravity.z;
   }
   if (pts[0].pinned) {
     pts[0].p.copy(anchorA);
