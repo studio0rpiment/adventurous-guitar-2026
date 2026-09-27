@@ -10,7 +10,7 @@ tap asks for motion access so the cables swing with the phone.
 |---|---|---|---|
 | flat on its back | D Lydian | D3 F#3 B3 E4 G#5 | (snapped to D Lydian) |
 | upright | E7#9 (Hendrix) | E2 E3 G#3 D4 G5 | G#4, D5 (−31¢), F#5 |
-| flat on its face | Bb6add9 | Bb2 D3 G3 E4 A5 | D5, Ab5 (−31¢), C6 |
+| flat on its face | Bb6add9 | Bb1 D2 G2 E3 A4 | D4, Ab4 (−31¢), C5 |
 
 - Tilt comes from the smoothed gravity (`deviceTilt` in `physics/gravity.ts`).
   A dead zone around upright holds E7#9; past it every voice glides to the

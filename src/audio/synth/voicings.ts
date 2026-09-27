@@ -3,7 +3,7 @@
  *
  *   flat on its back (screen up)  → D Lydian        D3  F#3 B3  E4  G#5
  *   upright                       → E7#9 (Hendrix)  E2  E3  G#3 D4  G5
- *   flat on its face              → Bb6add9         Bb2 D3  G3  E4  A5
+ *   flat on its face              → Bb6add9         Bb1 D2  G2  E3  A4
  *
  * Five chord tones on cables 0–4 (low → high, so each voice glides to the
  * matching voice of the next chord), and three upper harmonics of the chord's
@@ -21,7 +21,8 @@ const N = {
 export const CHORDS: Record<ChordName, number[]> = {
   lydian: [N.D3, N.Fs3, N.B3, N.E4, N.Gs5],
   hendrix: [N.E2, N.E3, N.Gs3, N.D4, N.G5],
-  bb: [N.Bb2, N.D3, N.G3, N.E4, N.A5],
+  // an octave below the voicing as written, for weight
+  bb: [N.Bb2, N.D3, N.G3, N.E4, N.A5].map((m) => m - 12),
 };
 
 /** Upper harmonics of the chord's bass, for cables 5–7. */
