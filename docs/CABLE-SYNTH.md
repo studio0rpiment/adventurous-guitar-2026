@@ -13,7 +13,9 @@ tap asks for motion access so the cables swing with the phone.
   shapes crossfaded (equal power).
 - **Mapping** (`sway.ts`, measured per frame from the rope, displacement of the
   cable's centre from where it has been resting lately):
-  - z displacement (toward/away from the screen) → pitch bend (± `bendCents`).
+  - depth (z) of the cable's centre vs. its plugs → pitch bend, up to a just
+    minor third (6:5) either way (`bendCents`). Behind the plugs (phone tilted
+    back) bends down, in front (leaned forward) bends up; held tilt = held bend.
     z, not x, because x and y swap when the phone rotates.
   - y displacement → waveform, saw → square
   - total displacement → loudness, direct: motion = amplitude (quick rise,

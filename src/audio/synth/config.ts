@@ -4,17 +4,21 @@
  */
 export const SYNTH = {
   /**
-   * Depth (z, toward/away from the screen) displacement that reaches the full
-   * pitch bend. z rather than x: when a phone rotates, "sideways" swaps with
-   * "up", but toward/away from the screen stays the same axis.
+   * How far a cable's centre must hang in front of / behind its plugs (z,
+   * toward/away from the screen) for the full pitch bend. z rather than x:
+   * when a phone rotates, "sideways" swaps with "up", but toward/away from the
+   * screen stays the same axis. Behind = down, in front = up.
    */
-  dispZ: 0.8,
+  dispZ: 1.2,
   /** Vertical (y) displacement that reaches full square wave. */
   dispY: 0.8,
   /** Total displacement that counts as "all the motion there is". */
   dispMag: 1.0,
-  /** Max pitch bend either way, in cents (100 = one semitone). */
-  bendCents: 100,
+  /**
+   * Max pitch bend either way, in cents (100 = one semitone). A just minor
+   * third (6:5, ~316 cents): full bend lands exactly ×6/5 up or ×5/6 down.
+   */
+  bendCents: 1200 * Math.log2(6 / 5),
 
   /**
    * How motion maps to loudness.
