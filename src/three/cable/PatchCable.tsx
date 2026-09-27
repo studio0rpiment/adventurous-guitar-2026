@@ -8,10 +8,10 @@ import { createDrapedRope, stepRope } from "./verlet";
 import { EXIT_LOCAL, JACK_AXIS, ROPE, TARGET_LEN } from "./constants";
 import { useConnection } from "@/three/connection/ConnectionContext";
 import { screenDistance } from "@/three/screen";
-import { worldGravity } from "@/physics/gravity";
+import { deviceTilt, worldGravity } from "@/physics/gravity";
 import { cableSynth } from "@/audio/synth/engine";
 import { createSwayState, measureSway, motionToLevel, type Sway } from "@/audio/synth/sway";
-import { SYNTH } from "@/audio/synth/config";
+import { cableNote, type CableNote } from "@/audio/synth/chord";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
 const SEAT_PX = 46; // within this it seats (plugs in)
@@ -48,7 +48,7 @@ export function PatchCable({
   voiceIndex,
 }: {
   color: string;
-  /** Which synth voice this cable plays (see audio/synth/tuning.ts). */
+  /** Which synth voice this cable plays (see audio/synth/voicings.ts). */
   voiceIndex: number;
   initialA?: number | null;
   initialB?: number | null;
@@ -109,7 +109,8 @@ export function PatchCable({
   const camUp = useMemo(() => new THREE.Vector3(), []);
   const swayVel = useMemo(() => new THREE.Vector3(), []);
   const swayState = useMemo(createSwayState, []);
-  const sway = useMemo<Sway>(() => ({ z: 0, y: 0, mag: 0 }), []);
+  const sway = useMemo<Sway>(() => ({ x: 0, z: 0, mag: 0 }), [])
+  const note = useMemo<CableNote>(() => ({ midi: 0, tone: 1 }), []);
 
   const setNdc = (clientX: number, clientY: number) => {
     const r = gl.domElement.getBoundingClientRect();
@@ -239,13 +240,16 @@ export function PatchCable({
 
     stepRope(pts, e0.anchor, e1.anchor, seg, worldGravity);
 
-    // Sound: depth (z) sway bends pitch, vertical sway morphs the waveform, and
-    // motion sets the loudness (see audio/synth/config.ts).
+    // Sound: the phone's tilt picks the chord (E7#9 upright, D Lydian on its
+    // back, Bb6add9 on its face), motion sets the loudness, and in D Lydian a
+    // moving cable wanders and resolves to the nearest scale tone.
+    // See audio/synth/chord.ts + config.ts.
     measureSway(pts, swayState, sway);
     const voice = cableSynth.voice(voiceIndex);
     if (voice) {
-      voice.setPitch(Math.pow(2, (sway.z * SYNTH.bendCents) / 1200));
-      voice.setShape(sway.y);
+      cableNote(voiceIndex, deviceTilt.z, sway, note);
+      voice.setMidi(note.midi);
+      voice.setTone(note.tone);
       voice.setLevel(motionToLevel(sway.mag));
     }
 

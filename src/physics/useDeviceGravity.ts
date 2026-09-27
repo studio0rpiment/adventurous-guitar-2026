@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { ROPE } from "@/three/cable/constants";
-import { resetGravity, worldGravity } from "@/physics/gravity";
+import { deviceTilt, resetGravity, worldGravity } from "@/physics/gravity";
 import { PHYSICS_FLIP } from "@/config/flags";
 
 export type PhysicsStatus = "off" | "on" | "denied";
@@ -80,6 +80,7 @@ export function useDeviceGravity() {
     raw.current.set(sx * k, sy * k, sz * k);
 
     const sm = smooth.current.lerp(raw.current, SMOOTH);
+    deviceTilt.z = Math.max(-1, Math.min(1, sm.z));
     // steady direction + amplified fast part (the shake)
     worldGravity
       .copy(raw.current)

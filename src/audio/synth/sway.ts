@@ -12,10 +12,10 @@ export interface SwayState {
 export const createSwayState = (): SwayState => ({ rx: 0, ry: 0, rz: 0, primed: false });
 
 export interface Sway {
-  /** Depth of the cable's centre vs. its ends (toward the viewer +), -1..1. */
+  /** Sideways displacement, −1..1. */
+  x: number;
+  /** Depth displacement (toward the viewer +), −1..1. */
   z: number;
-  /** Vertical displacement, 0..1 (how far, either way) — saw → square. */
-  y: number;
   /** Total displacement, 0..1. */
   mag: number;
 }
@@ -56,14 +56,8 @@ export function measureSway(pts: RopePoint[], s: SwayState, out: Sway): Sway {
   s.ry += dy * SYNTH.restFollow;
   s.rz += dz * SYNTH.restFollow;
 
-  // Pitch reads ABSOLUTE depth, not depth-since-rest: how far the cable's
-  // centre hangs in front of (+) or behind (−) the line between its two ends.
-  // Upright it hangs level with its plugs (in tune); tilt the phone back and it
-  // falls behind (bends down), lean it forward and it swings out (bends up) —
-  // and it holds that bend for as long as the phone is held there.
-  const endZ = (pts[0].p.z + pts[n - 1].p.z) / 2;
-  out.z = clamp((cz - endZ) / SYNTH.dispZ, -1, 1);
-  out.y = clamp(Math.abs(dy) / SYNTH.dispY, 0, 1);
+  out.x = clamp(dx / SYNTH.dispX, -1, 1);
+  out.z = clamp(dz / SYNTH.dispZ, -1, 1);
   out.mag = clamp(Math.hypot(dx, dy, dz) / SYNTH.dispMag, 0, 1);
   return out;
 }

@@ -8,7 +8,15 @@ import { DEFAULT_GRAVITY } from "@/three/cable/verlet";
  */
 export const worldGravity = DEFAULT_GRAVITY.clone();
 
-/** Back to plain downward pull (physics off / permission lost). */
+/**
+ * The phone's steady tilt, smoothed (no shake): z of the smoothed gravity, in g.
+ * −1 = flat on its back (screen up), 0 = upright, +1 = flat on its face. The
+ * cable synth picks its chord from this. Stays 0 on desktop / physics off.
+ */
+export const deviceTilt = { z: 0 };
+
+/** Back to plain downward pull, upright tilt (physics off / permission lost). */
 export function resetGravity(): void {
   worldGravity.copy(DEFAULT_GRAVITY);
+  deviceTilt.z = 0;
 }

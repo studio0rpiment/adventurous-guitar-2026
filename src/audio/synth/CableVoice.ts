@@ -1,79 +1,52 @@
 import { SYNTH } from "@/audio/synth/config";
+import { midiToHz } from "@/audio/synth/voicings";
 
-const SHAPES: OscillatorType[] = ["sawtooth", "square"];
-/** Rough loudness match: a square carries more energy than a saw. */
-const SHAPE_TRIM = [1, 0.75];
 /** Only touch an AudioParam when the value actually moved this much. */
 const EPS = 1e-3;
 
-export interface VoiceNote {
-  hz: number;
-  /** Relative level of this note within the voice. */
-  amp: number;
-}
-
 /**
- * One cable's voice: one or more notes (e.g. a harmonic and its upper partner),
- * each sounded as a saw AND a square at the same pitch. The two shapes are
- * crossfaded as two buses, so the waveform morphs continuously saw ↔ square
- * (Web Audio can't morph a single oscillator's type). Pitch bend moves every
- * note together, so the voice keeps its internal ratios.
+ * One cable's voice: a single square wave. Pitch (as MIDI, gliding), a tone
+ * level (chord tone vs. passing tone) and a motion level, each on its own gain
+ * so they don't fight over one AudioParam.
  */
 export class CableVoice {
-  private oscs: { osc: OscillatorNode; hz: number }[] = [];
-  private shapeBus: GainNode[];
+  private osc: OscillatorNode;
+  private toneGain: GainNode;
   private out: GainNode;
-  private last = { ratio: 1, shape: -1, level: -1 };
+  private last = { midi: -1, tone: -1, level: -1 };
 
   constructor(
     private ctx: AudioContext,
     dest: AudioNode,
-    notes: VoiceNote[],
+    amp: number,
   ) {
     this.out = ctx.createGain();
     this.out.gain.value = 0;
-    this.out.connect(dest);
+    this.toneGain = ctx.createGain();
+    this.toneGain.gain.value = 1;
+    const trim = ctx.createGain();
+    trim.gain.value = amp;
 
-    this.shapeBus = SHAPES.map((_, i) => {
-      const g = ctx.createGain();
-      g.gain.value = i === 0 ? SHAPE_TRIM[0] : 0;
-      g.connect(this.out);
-      return g;
-    });
-
-    for (const n of notes) {
-      const noteGain = SHAPES.map((_, i) => {
-        const g = ctx.createGain();
-        g.gain.value = n.amp;
-        g.connect(this.shapeBus[i]);
-        return g;
-      });
-      SHAPES.forEach((type, i) => {
-        const o = ctx.createOscillator();
-        o.type = type;
-        o.frequency.value = n.hz;
-        o.connect(noteGain[i]);
-        o.start();
-        this.oscs.push({ osc: o, hz: n.hz });
-      });
-    }
+    this.osc = ctx.createOscillator();
+    this.osc.type = "square";
+    this.osc.frequency.value = 440;
+    this.osc.connect(this.toneGain).connect(this.out).connect(trim).connect(dest);
+    this.osc.start();
   }
 
-  /** ratio: pitch multiplier (1 = in tune). */
-  setPitch(ratio: number) {
-    if (Math.abs(ratio - this.last.ratio) < EPS * 0.1) return;
-    this.last.ratio = ratio;
-    const t = this.ctx.currentTime;
-    for (const { osc, hz } of this.oscs) osc.frequency.setTargetAtTime(hz * ratio, t, SYNTH.tauPitch);
+  setMidi(midi: number) {
+    if (Math.abs(midi - this.last.midi) < EPS) return;
+    const first = this.last.midi < 0;
+    this.last.midi = midi;
+    const hz = midiToHz(midi);
+    if (first) this.osc.frequency.setValueAtTime(hz, this.ctx.currentTime);
+    else this.osc.frequency.setTargetAtTime(hz, this.ctx.currentTime, SYNTH.tauPitch);
   }
 
-  /** shape: 0 sawtooth → 1 square (equal-power crossfade). */
-  setShape(shape: number) {
-    if (Math.abs(shape - this.last.shape) < EPS) return;
-    this.last.shape = shape;
-    const w = [Math.cos((shape * Math.PI) / 2), Math.sin((shape * Math.PI) / 2)];
-    const t = this.ctx.currentTime;
-    this.shapeBus.forEach((g, i) => g.gain.setTargetAtTime(w[i] * SHAPE_TRIM[i], t, SYNTH.tauShape));
+  setTone(tone: number) {
+    if (Math.abs(tone - this.last.tone) < EPS) return;
+    this.last.tone = tone;
+    this.toneGain.gain.setTargetAtTime(tone, this.ctx.currentTime, SYNTH.tauTone);
   }
 
   /** level: 0..1. Rise/fall speeds from SYNTH.tauRise / tauFall. */
@@ -85,11 +58,9 @@ export class CableVoice {
   }
 
   dispose() {
-    this.oscs.forEach(({ osc }) => {
-      osc.stop();
-      osc.disconnect();
-    });
-    this.shapeBus.forEach((g) => g.disconnect());
+    this.osc.stop();
+    this.osc.disconnect();
+    this.toneGain.disconnect();
     this.out.disconnect();
   }
 }
