@@ -1172,3 +1172,11 @@ canvas {
   color: var(--ags-fg);
   opacity: 0.85;
 }
+
+/* ?embed=hero: a single, non-scrolling screen */
+html.is-embed,
+html.is-embed body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
