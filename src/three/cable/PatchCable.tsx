@@ -8,9 +8,9 @@ import { createDrapedRope, stepRope } from "./verlet";
 import { EXIT_LOCAL, JACK_AXIS, ROPE, TARGET_LEN } from "./constants";
 import { useConnection } from "@/three/connection/ConnectionContext";
 import { screenDistance } from "@/three/screen";
-import { deviceTilt, worldGravity } from "@/physics/gravity";
+import { createSticky, stickyGravity } from "@/physics/sticky";
 import { cableSynth } from "@/audio/synth/engine";
-import { createSwayState, measureSway, motionToLevel, type Sway } from "@/audio/synth/sway";
+import { createSwayState, measureDepth, measureSway, motionToLevel, type Sway } from "@/audio/synth/sway";
 import { cableNote, type CableNote } from "@/audio/synth/chord";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
@@ -109,8 +109,13 @@ export function PatchCable({
   const camUp = useMemo(() => new THREE.Vector3(), []);
   const swayVel = useMemo(() => new THREE.Vector3(), []);
   const swayState = useMemo(createSwayState, []);
-  const sway = useMemo<Sway>(() => ({ x: 0, z: 0, mag: 0 }), [])
+  const sway = useMemo<Sway>(() => ({ mag: 0 }), [])
   const note = useMemo<CableNote>(() => ({ midi: 0, tone: 1 }), []);
+  // Each cable is its own creature: its own weight (heavier = slower, thicker)
+  // and its own grip on the last pull it settled under (physics/sticky.ts).
+  const sticky = useMemo(() => createSticky(voiceIndex), [voiceIndex]);
+  const myGravity = useMemo(() => new THREE.Vector3(), []);
+  const radius = ROPE.radius * (0.7 + 0.3 * sticky.weight);
 
   const setNdc = (clientX: number, clientY: number) => {
     const r = gl.domElement.getBoundingClientRect();
@@ -215,7 +220,7 @@ export function PatchCable({
     grp.position.copy(pts[endIdx].p).sub(exit);
   };
 
-  useFrame(() => {
+  useFrame((_, dt) => {
     const lastI = pts.length - 1;
     const e0 = ends.current[0];
     const e1 = ends.current[1];
@@ -238,16 +243,16 @@ export function PatchCable({
       swayVel.multiplyScalar(SWAY_DECAY);
     }
 
-    stepRope(pts, e0.anchor, e1.anchor, seg, worldGravity);
+    stepRope(pts, e0.anchor, e1.anchor, seg, stickyGravity(sticky, dt, myGravity));
 
-    // Sound: the phone's tilt picks the chord (E7#9 upright, D Lydian on its
-    // back, Bb6add9 on its face), motion sets the loudness, and in D Lydian a
-    // moving cable wanders and resolves to the nearest scale tone.
+    // Sound: where THIS cable hangs picks its note (fallen back = D Lydian,
+    // level = E7#9, out in front = low Bb), and its motion sets the loudness.
+    // Sticky cables let go one by one, so the chord changes voice by voice.
     // See audio/synth/chord.ts + config.ts.
     measureSway(pts, swayState, sway);
     const voice = cableSynth.voice(voiceIndex);
     if (voice) {
-      cableNote(voiceIndex, deviceTilt.z, sway, note);
+      cableNote(voiceIndex, measureDepth(pts, restLen), note);
       voice.setMidi(note.midi);
       voice.setTone(note.tone);
       voice.setLevel(motionToLevel(sway.mag));
@@ -261,7 +266,7 @@ export function PatchCable({
         "catmullrom",
         0.5,
       );
-      const geo = new THREE.TubeGeometry(curve, ROPE.tubeSegments, ROPE.radius, ROPE.tubeRadial, false);
+      const geo = new THREE.TubeGeometry(curve, ROPE.tubeSegments, radius, ROPE.tubeRadial, false);
       mesh.geometry.dispose();
       mesh.geometry = geo;
       const hm = hitRef.current;

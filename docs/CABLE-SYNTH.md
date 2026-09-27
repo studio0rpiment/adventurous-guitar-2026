@@ -4,21 +4,32 @@ _2026-09-27._ Each of the 8 patch cables plays one square-wave voice. One button
 "Physics and sound" (phones) / "Sound" (desktop), turns it on; on phones the same
 tap asks for motion access so the cables swing with the phone.
 
-## Chords (from phone tilt)
+## Chords (from each cable's own position)
 
-| phone | chord | cables 0–4 (chord tones) | cables 5–7 (harmonics 5, 7, 9 of the bass) |
-|---|---|---|---|
-| flat on its back | D Lydian | D3 F#3 B3 E4 G#5 | (snapped to D Lydian) |
-| upright | E7#9 (Hendrix) | E2 E3 G#3 D4 G5 | G#4, D5 (−31¢), F#5 |
-| flat on its face | Bb6add9 | Bb1 D2 G2 E3 A4 | D4, Ab4 (−31¢), C5 |
+| cable hangs… | phone | chord | cables 0–4 (chord tones, low → high) | cables 5–7 (harmonics 5, 7, 9 of the bass) |
+|---|---|---|---|---|
+| behind its plugs | flat on its back | D Lydian | D3 F#3 B3 E4 G#5 | snapped to D Lydian |
+| level | upright | E7#9 | E2 E3 G#3 D4 G5 | G#4, D5 (−31¢), F#5 |
+| in front | flat on its face | Bb6add9 | Bb1 D2 G2 E3 A4 | D4, Ab4 (−31¢), C5 |
 
-- Tilt comes from the smoothed gravity (`deviceTilt` in `physics/gravity.ts`).
-  A dead zone around upright holds E7#9; past it every voice glides to the
-  matching voice of the target chord, fully there at `tiltFull`.
-- Desktop has no tilt, so it stays on E7#9.
-- In full D Lydian, a moving cable wanders off its note (sideways + depth sway,
-  up to `wanderSemis`) and resolves to the nearest D Lydian scale tone. Chord
-  tones D F# C# G# A ring louder than E and B (`nonChordLevel`).
+- Cable i is always voice i, so each cable has one fixed path, and every path
+  descends D Lydian → E7#9 → Bb: a cable only ever moves one way.
+- Depth = how far the cable's middle hangs in front of / behind its plugs, as a
+  fraction of its reach (`measureDepth` in `sway.ts`). Dead zone around level
+  holds E7#9 (`depthDead`); fully in the outer chord at `depthFull`.
+- `travel: "smooth"` (default) glides continuously along the path; `"steps"` walks note by note — D Lydian scale tones on the D side,
+  semitones on the Bb side. D Lydian non-chord tones (E, B)
+  sit lower (`nonChordLevel`).
+
+## Sticky, weighted cables (`src/physics/sticky.ts`)
+
+Each cable holds the pull it last settled under. When the phone turns it stays
+stuck until the new pull is past its own release angle, then swings over at its
+own speed and sticks again — so cables let go one by one, in a different order
+each time (release angles re-roll on each re-stick). Heavier cables swing more
+slowly and are drawn thicker. Shake always passes straight through.
+Knobs: `STICKY.stickiness` (0 = none, 2 = gooey), `releaseMinDeg`/`releaseMaxDeg`,
+`weightMin`/`weightMax`, `followRate`.
 
 ## Loudness
 
@@ -28,5 +39,5 @@ as it settles (`response: "direct"`; "inverse" and "swell" still available).
 ## Files
 
 `src/audio/synth/` — `voicings.ts` (chords, harmonics, Lydian snap), `chord.ts`
-(tilt + sway → note), `sway.ts`, `CableVoice.ts`, `engine.ts` (master → lowpass
+(cable depth → note), `sway.ts`, `CableVoice.ts`, `engine.ts` (master → lowpass
 → compressor; suspends when hidden / off), `config.ts` (all feel knobs).

@@ -1,9 +1,10 @@
 /**
- * The three chords the cables move between, picked by how the phone is tilted:
+ * The three chords the cables move between. Each cable picks from where it
+ * hangs (see chord.ts), which follows how the phone is tilted:
  *
- *   flat on its back (screen up)  → D Lydian        D3  F#3 B3  E4  G#5
- *   upright                       → E7#9 (Hendrix)  E2  E3  G#3 D4  G5
- *   flat on its face              → Bb6add9         Bb1 D2  G2  E3  A4
+ *   fallen back (phone on its back)  → D Lydian        D3  F#3 B3  E4  G#5
+ *   level (upright)                  → E7#9 (Hendrix)  E2  E3  G#3 D4  G5
+ *   out in front (phone on its face) → Bb6add9         Bb1 D2  G2  E3  A4
  *
  * Five chord tones on cables 0–4 (low → high, so each voice glides to the
  * matching voice of the next chord), and three upper harmonics of the chord's

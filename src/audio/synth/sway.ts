@@ -12,11 +12,7 @@ export interface SwayState {
 export const createSwayState = (): SwayState => ({ rx: 0, ry: 0, rz: 0, primed: false });
 
 export interface Sway {
-  /** Sideways displacement, −1..1. */
-  x: number;
-  /** Depth displacement (toward the viewer +), −1..1. */
-  z: number;
-  /** Total displacement, 0..1. */
+  /** Total displacement from rest, 0..1 — drives loudness. */
   mag: number;
 }
 
@@ -56,8 +52,6 @@ export function measureSway(pts: RopePoint[], s: SwayState, out: Sway): Sway {
   s.ry += dy * SYNTH.restFollow;
   s.rz += dz * SYNTH.restFollow;
 
-  out.x = clamp(dx / SYNTH.dispX, -1, 1);
-  out.z = clamp(dz / SYNTH.dispZ, -1, 1);
   out.mag = clamp(Math.hypot(dx, dy, dz) / SYNTH.dispMag, 0, 1);
   return out;
 }
@@ -71,4 +65,24 @@ export function motionToLevel(m: number): number {
     return t <= 1 ? Math.pow(t, 0.7) : Math.pow(1 - (m - 0.25) / 0.75, SYNTH.responseCurve);
   }
   return 1 - Math.pow(m, 1 / SYNTH.responseCurve);
+}
+
+/**
+ * How far this cable's middle hangs in front of (+) or behind (−) the line
+ * between its plugs, as a fraction of how far its slack can reach (−1..1).
+ * Upright ≈ 0; phone flat on its back → toward −1; on its face → toward +1.
+ * Reach: a rope of length L across a gap d sags about √(3·d·(L−d)/8); its
+ * centre of mass sits a bit short of that.
+ */
+export function measureDepth(pts: RopePoint[], restLen: number): number {
+  const n = pts.length;
+  const a = pts[0].p;
+  const b = pts[n - 1].p;
+  let cz = 0;
+  for (let i = 1; i < n - 1; i++) cz += pts[i].p.z;
+  cz /= Math.max(1, n - 2);
+  const gap = a.distanceTo(b);
+  const slack = Math.max(0.1, restLen - gap);
+  const reach = 0.6 * Math.sqrt((3 * Math.max(gap, 0.5) * slack) / 8);
+  return clamp((cz - (a.z + b.z) / 2) / reach, -1, 1);
 }
