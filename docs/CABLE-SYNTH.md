@@ -4,9 +4,10 @@ _2026-09-27._ Each of the 8 patch cables plays one Web Audio voice. One button,
 "Physics and sound" (phones) / "Sound" (desktop), turns it on; on phones the same
 tap asks for motion access so the cables swing with the phone.
 
-- **Tuning** (`src/audio/synth/tuning.ts`): just intonation on E2 (82.41 Hz),
-  odd harmonics 1 3 5 7 9 11 13 15 (overtone series, octave doublings skipped).
-  Stand-in for the opening chord of Branca's Symphony No. 5; swap `HARMONICS`.
+- **Tuning** (`src/audio/synth/tuning.ts`): two just-intoned overtone series,
+  deliberately out of tune with each other. Four cables on E2 (82.41 Hz), four
+  on D2 a just 9:8 below (~73.25 Hz), each taking the odd harmonics 1 3 5 7
+  (octave doublings skipped), interleaved E/D across the cables. Edit `VOICES`.
 - **Voice** (`CableVoice.ts`): triangle + saw + square at one pitch, crossfaded.
 - **Mapping** (`sway.ts`, measured per frame from the rope, displacement of the
   cable's centre from where it has been resting lately):
