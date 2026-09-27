@@ -109,7 +109,7 @@ export function PatchCable({
   const camUp = useMemo(() => new THREE.Vector3(), []);
   const swayVel = useMemo(() => new THREE.Vector3(), []);
   const swayState = useMemo(createSwayState, []);
-  const sway = useMemo<Sway>(() => ({ x: 0, y: 0, mag: 0 }), []);
+  const sway = useMemo<Sway>(() => ({ z: 0, y: 0, mag: 0 }), []);
 
   const setNdc = (clientX: number, clientY: number) => {
     const r = gl.domElement.getBoundingClientRect();
@@ -239,12 +239,12 @@ export function PatchCable({
 
     stepRope(pts, e0.anchor, e1.anchor, seg, worldGravity);
 
-    // Sound: sideways sway bends pitch, vertical sway morphs the waveform, and
-    // the more it moves the quieter it gets (see audio/synth/config.ts).
+    // Sound: depth (z) sway bends pitch, vertical sway morphs the waveform, and
+    // motion sets the loudness (see audio/synth/config.ts).
     measureSway(pts, swayState, sway);
     const voice = cableSynth.voice(voiceIndex);
     if (voice) {
-      voice.setPitch(Math.pow(2, (sway.x * SYNTH.bendCents) / 1200));
+      voice.setPitch(Math.pow(2, (sway.z * SYNTH.bendCents) / 1200));
       voice.setShape(sway.y);
       voice.setLevel(motionToLevel(sway.mag));
     }

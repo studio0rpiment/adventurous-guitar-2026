@@ -12,8 +12,8 @@ export interface SwayState {
 export const createSwayState = (): SwayState => ({ rx: 0, ry: 0, rz: 0, primed: false });
 
 export interface Sway {
-  /** Sideways displacement, -1..1 (signed). */
-  x: number;
+  /** Depth displacement (toward the viewer +), -1..1 (signed). */
+  z: number;
   /** Vertical displacement, 0..1 (how far, either way). */
   y: number;
   /** Total displacement, 0..1. */
@@ -56,7 +56,7 @@ export function measureSway(pts: RopePoint[], s: SwayState, out: Sway): Sway {
   s.ry += dy * SYNTH.restFollow;
   s.rz += dz * SYNTH.restFollow;
 
-  out.x = clamp(dx / SYNTH.dispX, -1, 1);
+  out.z = clamp(dz / SYNTH.dispZ, -1, 1);
   out.y = clamp(Math.abs(dy) / SYNTH.dispY, 0, 1);
   out.mag = clamp(Math.hypot(dx, dy, dz) / SYNTH.dispMag, 0, 1);
   return out;
@@ -64,6 +64,7 @@ export function measureSway(pts: RopePoint[], s: SwayState, out: Sway): Sway {
 
 /** Motion (0..1) → loudness (0..1), per SYNTH.response. */
 export function motionToLevel(m: number): number {
+  if (SYNTH.response === "direct") return Math.pow(m, 1 / SYNTH.responseCurve);
   if (SYNTH.response === "swell") {
     // 0 at rest, peak at m = 0.25, easing down toward wild motion
     const t = m / 0.25;

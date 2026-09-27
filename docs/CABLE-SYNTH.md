@@ -10,11 +10,12 @@ tap asks for motion access so the cables swing with the phone.
 - **Voice** (`CableVoice.ts`): triangle + saw + square at one pitch, crossfaded.
 - **Mapping** (`sway.ts`, measured per frame from the rope, displacement of the
   cable's centre from where it has been resting lately):
-  - x displacement → pitch bend (± `bendCents`)
+  - z displacement (toward/away from the screen) → pitch bend (± `bendCents`).
+    z, not x, because x and y swap when the phone rotates.
   - y displacement → waveform, triangle → saw → square
-  - total displacement → loudness, inverted: more motion = quieter; settling
-    swells back (slow rise, quick fall). `response: "swell"` in `config.ts`
-    switches to silent-at-rest / loudest at small motion.
+  - total displacement → loudness, direct: motion = amplitude (quick rise,
+    slow ring-out). `response` in `config.ts` also offers "inverse" (still =
+    loudest) and "swell" (loudest at small motion).
 - **Output** (`engine.ts`): master gain → lowpass → compressor. The audio thread
   suspends when the tab is hidden and when sound is turned off.
 - All feel knobs: `src/audio/synth/config.ts`.
