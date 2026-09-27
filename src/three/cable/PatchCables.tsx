@@ -39,6 +39,7 @@ export function PatchCables() {
           initialA={i}
           initialB={j}
           storageHook={STORAGE_HOOKS[k]}
+          voiceIndex={k}
         />
       ))}
     </>

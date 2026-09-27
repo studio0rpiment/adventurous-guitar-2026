@@ -7,7 +7,7 @@ import { SectionOverlay } from "@/ui/SectionOverlay";
 import { TITLE_MODE } from "@/config/ui";
 import { InfoSections } from "@/ui/InfoSections";
 import { Footer } from "@/ui/Footer";
-import { PhysicsToggle } from "@/ui/PhysicsToggle";
+import { PhysicsSoundToggle } from "@/ui/PhysicsSoundToggle";
 
 /**
  * App shell. The 3D cable canvas is the base layer; the festival title, the
@@ -27,8 +27,8 @@ export default function App() {
         <SectionOverlay />
         <Hud />
         <Footer />
-        {/* Shows itself only on touch devices (motion sensors). */}
-        <PhysicsToggle />
+        {/* "Physics and sound" on phones, "Sound" on desktop. */}
+        <PhysicsSoundToggle />
       </NavProvider>
     </AudioProvider>
   );

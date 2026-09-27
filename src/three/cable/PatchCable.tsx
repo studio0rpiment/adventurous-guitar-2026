@@ -9,6 +9,9 @@ import { EXIT_LOCAL, JACK_AXIS, ROPE, TARGET_LEN } from "./constants";
 import { useConnection } from "@/three/connection/ConnectionContext";
 import { screenDistance } from "@/three/screen";
 import { worldGravity } from "@/physics/gravity";
+import { cableSynth } from "@/audio/synth/engine";
+import { createSwayState, measureSway, motionToLevel, type Sway } from "@/audio/synth/sway";
+import { SYNTH } from "@/audio/synth/config";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
 const SEAT_PX = 46; // within this it seats (plugs in)
@@ -42,8 +45,11 @@ export function PatchCable({
   initialA = null,
   initialB = null,
   storageHook,
+  voiceIndex,
 }: {
   color: string;
+  /** Which synth voice this cable plays (see audio/synth/tuning.ts). */
+  voiceIndex: number;
   initialA?: number | null;
   initialB?: number | null;
   storageHook: [number, number, number];
@@ -102,6 +108,8 @@ export function PatchCable({
   const camRight = useMemo(() => new THREE.Vector3(), []);
   const camUp = useMemo(() => new THREE.Vector3(), []);
   const swayVel = useMemo(() => new THREE.Vector3(), []);
+  const swayState = useMemo(createSwayState, []);
+  const sway = useMemo<Sway>(() => ({ x: 0, y: 0, mag: 0 }), []);
 
   const setNdc = (clientX: number, clientY: number) => {
     const r = gl.domElement.getBoundingClientRect();
@@ -230,6 +238,16 @@ export function PatchCable({
     }
 
     stepRope(pts, e0.anchor, e1.anchor, seg, worldGravity);
+
+    // Sound: sideways sway bends pitch, vertical sway morphs the waveform, and
+    // the more it moves the quieter it gets (see audio/synth/config.ts).
+    measureSway(pts, swayState, sway);
+    const voice = cableSynth.voice(voiceIndex);
+    if (voice) {
+      voice.setPitch(Math.pow(2, (sway.x * SYNTH.bendCents) / 1200));
+      voice.setShape(sway.y);
+      voice.setLevel(motionToLevel(sway.mag));
+    }
 
     const mesh = cableRef.current;
     if (mesh) {
