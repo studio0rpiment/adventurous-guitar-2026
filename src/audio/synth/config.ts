@@ -10,7 +10,7 @@ export const SYNTH = {
   /** Below this much depth it's the upright chord (E7#9). */
   depthDead: 0.25,
   /** At/above this much depth it's fully the flat chord (D Lydian / Bb). */
-  depthFull: 0.8,
+  depthFull: 0.7,
   /**
    * How a voice travels between chords:
    *  - "steps":  walks note by note — through D Lydian scale tones on the

@@ -7,12 +7,12 @@ import { PHYSICS_FLIP } from "@/config/flags";
 export type PhysicsStatus = "off" | "on" | "denied";
 
 const G = 9.81;
-/** Per-event low-pass weight for the steady gravity direction. */
-const SMOOTH = 0.15;
-/** How much of the fast part of each reading (a shake) reaches the cables. */
-const SHAKE_GAIN = 1.6;
-/** Cap on the total pull, as a multiple of normal gravity, so a hard shake can't fling. */
-const MAX_G = 3.5;
+/** Per-event low-pass weight for the steady gravity direction (higher = tilt reads faster). */
+const SMOOTH = 0.3;
+/** How much of the fast part of each reading (a shake, a flick) reaches the cables — the whip. */
+const SHAKE_GAIN = 4;
+/** Cap on the total pull, as a multiple of normal gravity, so a hard flick whips but can't fling. */
+const MAX_G = 7;
 /** A reading this strong along the screen's vertical is clear enough to calibrate the sign from. */
 const CALIBRATE_MIN = 6;
 
