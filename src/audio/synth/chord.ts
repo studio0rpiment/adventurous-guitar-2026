@@ -44,7 +44,7 @@ export function cableTarget(
   const back = depth < 0;
   const raw = clamp01((Math.abs(depth) - SYNTH.depthDead) / (SYNTH.depthFull - SYNTH.depthDead));
   // chords are magnets: linger near E7#9 and near the flat chord, pass quickly between
-  let w = raw > 0 && raw < 1 ? linger(raw, 1 + SYNTH.chordPull * 4 * power) : raw;
+  let w = raw > 0 && raw < 1 ? linger(raw, 1 + SYNTH.chordPull * 6 * power) : raw;
   if (w < 0.01) w = 0;
   if (w > 0.99) w = 1;
   const target = chordMidi(back ? "lydian" : "bb", i);
@@ -67,7 +67,7 @@ export function cableTarget(
  * continuous glide). The pitch then chases that warped target.
  *
  *   u    = where the target sits between its two notes (0..1)
- *   n    = 1 + strength · 6 · (1 − min(1, (accel/accelRef)²))
+ *   n    = 1 + strength · 8 · (1 − min(1, (accel/accelRef)²))
  *   u'   = uⁿ / (uⁿ + (1−u)ⁿ)          n = 1 → straight line, big n → steps
  */
 export class PitchMagnet {
@@ -81,7 +81,7 @@ export class PitchMagnet {
     let goal = target;
     if (bracket && M.strength > 0) {
       const [lo, hi] = bracket;
-      goal = lo + (hi - lo) * linger((target - lo) / (hi - lo), 1 + M.strength * 6 * power);
+      goal = lo + (hi - lo) * linger((target - lo) / (hi - lo), 1 + M.strength * 8 * power);
     }
 
     if (Number.isNaN(this.midi)) this.midi = goal;

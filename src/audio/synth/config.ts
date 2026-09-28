@@ -22,7 +22,7 @@ export const SYNTH = {
    * acceleration like the note magnet (gentle = full pull, jolt = none).
    * 0 = straight crossfade.
    */
-  chordPull: 0.8,
+  chordPull: 1,
   /**
    * Magnetic note centres. Along its path a voice's pitch is pulled gently
    * toward each note it passes (D Lydian scale tones on the D side, semitones
@@ -32,11 +32,11 @@ export const SYNTH = {
    */
   magnet: {
     /** 0 = no pull (pure glide), 1 = strong (almost stepwise when moving gently). */
-    strength: 0.6,
+    strength: 0.9,
     /** How fast the pitch chases its (warped) target, per second. */
-    follow: 14,
+    follow: 24,
     /** Cable acceleration (world units / s²) at which the magnet lets go. */
-    accelRef: 20,
+    accelRef: 30,
   },
   /** Level of D Lydian non-chord tones (E, B) vs. chord tones (D F# C# G# A). */
   nonChordLevel: 0.45,
@@ -48,9 +48,9 @@ export const SYNTH = {
    * motion is heard slowly, a jolt snaps through. See adaptiveLowpass.ts.
    */
   filter: {
-    fcMin: 0.8, // Hz — gentle motion: lazy, drifting
-    fcMax: 25, // Hz — hard jolt: immediate
-    accelRef: 30, // world units / s² that fully opens it
+    fcMin: 2, // Hz — gentle motion: lazy, drifting
+    fcMax: 40, // Hz — hard jolt: immediate
+    accelRef: 20, // world units / s² that fully opens it
   },
 
   /* ---- loudness ---- */

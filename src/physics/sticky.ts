@@ -25,7 +25,7 @@ export const STICKY = {
   weightMin: 0.6,
   weightMax: 1.4,
   /** How fast a weight-1 cable turns toward the new pull, per second (frame-rate independent). */
-  followRate: 8,
+  followRate: 11,
 } as const;
 
 /** Deterministic 0..1 per cable, so each keeps its character across reloads. */
