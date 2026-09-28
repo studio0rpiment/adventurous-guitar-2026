@@ -11,7 +11,8 @@ import { screenDistance } from "@/three/screen";
 import { createSticky, stickyGravity } from "@/physics/sticky";
 import { cableSynth } from "@/audio/synth/engine";
 import { createSwayState, measureDepth, measureSway, motionToLevel, type Sway } from "@/audio/synth/sway";
-import { cableNote, type CableNote } from "@/audio/synth/chord";
+import { cableNote, createNoteGrip, type CableNote } from "@/audio/synth/chord";
+import { SYNTH } from "@/audio/synth/config";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
 const SEAT_PX = 46; // within this it seats (plugs in)
@@ -110,7 +111,9 @@ export function PatchCable({
   const swayVel = useMemo(() => new THREE.Vector3(), []);
   const swayState = useMemo(createSwayState, []);
   const sway = useMemo<Sway>(() => ({ mag: 0 }), [])
-  const note = useMemo<CableNote>(() => ({ midi: 0, tone: 1 }), []);
+  const note = useMemo<CableNote>(() => ({ midi: 0, tone: 1, slipped: false }), []);
+  const grip = useMemo(createNoteGrip, []);
+  const slipUntil = useRef(0);
   // Each cable is its own creature: its own weight (heavier = slower, thicker)
   // and its own grip on the last pull it settled under (physics/sticky.ts).
   const sticky = useMemo(() => createSticky(voiceIndex), [voiceIndex]);
@@ -252,8 +255,11 @@ export function PatchCable({
     measureSway(pts, swayState, sway);
     const voice = cableSynth.voice(voiceIndex);
     if (voice) {
-      cableNote(voiceIndex, measureDepth(pts, restLen), note);
-      voice.setMidi(note.midi);
+      cableNote(voiceIndex, measureDepth(pts, restLen), grip, note);
+      // a slip glides a touch slower than normal tracking, so it reads as sliding off
+      const now = performance.now();
+      if (note.slipped) slipUntil.current = now + SYNTH.tauSlip * 3000;
+      voice.setMidi(note.midi, now < slipUntil.current ? SYNTH.tauSlip : SYNTH.tauPitch);
       voice.setTone(note.tone);
       voice.setLevel(motionToLevel(sway.mag));
     }

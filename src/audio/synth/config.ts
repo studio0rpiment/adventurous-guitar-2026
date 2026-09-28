@@ -18,6 +18,20 @@ export const SYNTH = {
    *  - "smooth": glides continuously.
    */
   travel: "smooth" as "steps" | "smooth",
+  /**
+   * Sticky notes (with travel "smooth"): a gliding voice snags on the note
+   * points along its path — D Lydian scale tones on the D side, semitones on
+   * the Bb side — holds there until the glide has pulled past it by its catch
+   * (semitones, random per snag, scaled by noteStickiness), then slips on.
+   * 0 = pure glide.
+   */
+  noteStickiness: 1,
+  catchMin: 0.3,
+  catchMax: 1.0,
+  /** How close the glide must pass a note point to snag on it (semitones). */
+  snagRadius: 0.12,
+  /** Glide time when a voice slips off a note (seconds-ish). */
+  tauSlip: 0.12,
   /** Level of D Lydian non-chord tones (E, B) vs. chord tones (D F# C# G# A). */
   nonChordLevel: 0.45,
 

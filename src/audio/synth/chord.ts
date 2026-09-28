@@ -6,6 +6,8 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 export interface CableNote {
   /** Pitch, fractional MIDI. */
   midi: number;
+  /** True on the frame a voice slips off a note it was stuck on. */
+  slipped: boolean;
   /** Relative level for this note (D Lydian non-chord tones sit lower). */
   tone: number;
 }
@@ -24,15 +26,49 @@ export interface CableNote {
  * the D side, semitones on the Bb side — landing exactly on each chord's tuning
  * (harmonics included) at the poles.
  */
-export function cableNote(i: number, depth: number, out: CableNote): CableNote {
+/** Per-cable memory for sticky notes. */
+export interface NoteGrip {
+  held: number | null;
+  catch: number;
+}
+
+const rollCatch = () =>
+  (SYNTH.catchMin + Math.random() * (SYNTH.catchMax - SYNTH.catchMin)) * SYNTH.noteStickiness;
+
+export const createNoteGrip = (): NoteGrip => ({ held: null, catch: rollCatch() });
+
+export function cableNote(
+  i: number,
+  depth: number,
+  grip: NoteGrip,
+  out: CableNote,
+): CableNote {
   const home = chordMidi("hendrix", i);
   const back = depth < 0;
   const w = clamp01((Math.abs(depth) - SYNTH.depthDead) / (SYNTH.depthFull - SYNTH.depthDead));
   const target = chordMidi(back ? "lydian" : "bb", i);
 
   let m = home + (target - home) * w;
-  if (w >= 1 && back) m = snapLydian(m);
-  else if (w > 0 && w < 1 && SYNTH.travel === "steps") m = back ? snapLydian(m) : Math.round(m);
+  out.slipped = false;
+  if (w >= 1 && back) {
+    m = snapLydian(m);
+    grip.held = null;
+  } else if (w > 0 && w < 1) {
+    const grid = back ? snapLydian(m) : Math.round(m);
+    if (SYNTH.travel === "steps") m = grid;
+    else if (SYNTH.noteStickiness > 0) {
+      // snag on note points along the glide, slip off once pulled far enough
+      if (grip.held !== null && Math.abs(m - grip.held) > grip.catch) {
+        grip.held = null;
+        grip.catch = rollCatch();
+        out.slipped = true;
+      }
+      if (grip.held === null && Math.abs(m - grid) < SYNTH.snagRadius) grip.held = grid;
+      if (grip.held !== null) m = grip.held;
+    }
+  } else {
+    grip.held = null; // at a pole: exact chord tuning
+  }
 
   out.midi = m;
   out.tone = back && w > 0 && !isLydianChordTone(m) ? SYNTH.nonChordLevel : 1;

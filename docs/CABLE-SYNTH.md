@@ -18,7 +18,9 @@ tap asks for motion access so the cables swing with the phone.
   fraction of its reach (`measureDepth` in `sway.ts`). Dead zone around level
   holds E7#9 (`depthDead`); fully in the outer chord at `depthFull`.
 - `travel: "smooth"` (default) glides continuously along the path; `"steps"` walks note by note — D Lydian scale tones on the D side,
-  semitones on the Bb side. D Lydian non-chord tones (E, B)
+  semitones on the Bb side. While gliding, voices snag on those note points and
+  hold until pulled past a random catch, then slip on (`noteStickiness`,
+  `catchMin`/`catchMax`, `snagRadius`, `tauSlip`). D Lydian non-chord tones (E, B)
   sit lower (`nonChordLevel`).
 
 ## Sticky, weighted cables (`src/physics/sticky.ts`)

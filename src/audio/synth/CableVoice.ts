@@ -34,13 +34,14 @@ export class CableVoice {
     this.osc.start();
   }
 
-  setMidi(midi: number) {
+  /** tau: glide time (defaults to SYNTH.tauPitch). */
+  setMidi(midi: number, tau: number = SYNTH.tauPitch) {
     if (Math.abs(midi - this.last.midi) < EPS) return;
     const first = this.last.midi < 0;
     this.last.midi = midi;
     const hz = midiToHz(midi);
     if (first) this.osc.frequency.setValueAtTime(hz, this.ctx.currentTime);
-    else this.osc.frequency.setTargetAtTime(hz, this.ctx.currentTime, SYNTH.tauPitch);
+    else this.osc.frequency.setTargetAtTime(hz, this.ctx.currentTime, tau);
   }
 
   setTone(tone: number) {
