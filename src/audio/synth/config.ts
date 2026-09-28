@@ -34,7 +34,7 @@ export const SYNTH = {
     /** 0 = no pull (pure glide), 1 = strong (almost stepwise when moving gently). */
     strength: 0.9,
     /** How fast the pitch chases its (warped) target, per second. */
-    follow: 24,
+    follow: 36,
     /** Cable acceleration (world units / s²) at which the magnet lets go. */
     accelRef: 30,
   },
@@ -48,8 +48,8 @@ export const SYNTH = {
    * motion is heard slowly, a jolt snaps through. See adaptiveLowpass.ts.
    */
   filter: {
-    fcMin: 2, // Hz — gentle motion: lazy, drifting
-    fcMax: 40, // Hz — hard jolt: immediate
+    fcMin: 3.5, // Hz — gentle motion: lazy, drifting
+    fcMax: 60, // Hz — hard jolt: immediate
     accelRef: 20, // world units / s² that fully opens it
   },
 

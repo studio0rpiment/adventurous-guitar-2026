@@ -19,7 +19,7 @@ export const EXIT_LOCAL = new THREE.Vector3(0, 0, TARGET_LEN / 2);
 export const ROPE = {
   count: 26,
   gravity: -0.014,
-  damping: 0.98,
+  damping: 0.985, // a touch more momentum so a flick carries down the cable
   iterations: 18,
   radius: 0.075,
   tubeSegments: 54,

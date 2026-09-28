@@ -17,15 +17,15 @@ export const STICKY = {
   /** Global stickiness: 0 = no stick (all cables follow at once), 1 = normal, 2 = gooey. */
   stickiness: 1,
   /** Release angle range, degrees (scaled by stickiness). */
-  releaseMinDeg: 6,
-  releaseMaxDeg: 30,
+  releaseMinDeg: 4,
+  releaseMaxDeg: 20,
   /** Once within this of the pull, a released cable sticks again. */
   restickDeg: 2,
   /** Cable weights (1 = normal). Heavier cables swing to the new pull more slowly and look thicker. */
   weightMin: 0.6,
   weightMax: 1.4,
   /** How fast a weight-1 cable turns toward the new pull, per second (frame-rate independent). */
-  followRate: 11,
+  followRate: 16,
 } as const;
 
 /** Deterministic 0..1 per cable, so each keeps its character across reloads. */

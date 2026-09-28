@@ -8,11 +8,17 @@ export type PhysicsStatus = "off" | "on" | "denied";
 
 const G = 9.81;
 /** Per-event low-pass weight for the steady gravity direction (higher = tilt reads faster). */
-const SMOOTH = 0.3;
-/** How much of the fast part of each reading (a shake, a flick) reaches the cables — the whip. */
-const SHAKE_GAIN = 4;
+const SMOOTH = 0.45;
+/**
+ * A slower baseline the whip is measured against. Anything faster than this —
+ * a flick, a shake, or just a quick tilt — reaches the cables as a whip, even
+ * though the steady tilt above has already caught up.
+ */
+const WHIP_BASE = 0.08;
+/** How hard that fast part hits the cables. */
+const SHAKE_GAIN = 7;
 /** Cap on the total pull, as a multiple of normal gravity, so a hard flick whips but can't fling. */
-const MAX_G = 7;
+const MAX_G = 12;
 /** A reading this strong along the screen's vertical is clear enough to calibrate the sign from. */
 const CALIBRATE_MIN = 6;
 
@@ -57,6 +63,7 @@ export function useDeviceGravity() {
   const sign = useRef(1);
   const calibrated = useRef(false);
   const smooth = useRef(new THREE.Vector3(0, -1, 0)); // in units of g, world space
+  const base = useRef(new THREE.Vector3(0, -1, 0)); // slower baseline for the whip
   const raw = useRef(new THREE.Vector3());
 
   const onMotion = useCallback((e: DeviceMotionEvent) => {
@@ -80,11 +87,12 @@ export function useDeviceGravity() {
     raw.current.set(sx * k, sy * k, sz * k);
 
     const sm = smooth.current.lerp(raw.current, SMOOTH);
+    const bs = base.current.lerp(raw.current, WHIP_BASE);
     steadyGravity.copy(sm).multiplyScalar(Math.abs(ROPE.gravity));
     // steady direction + amplified fast part (the shake)
     worldGravity
       .copy(raw.current)
-      .sub(sm)
+      .sub(bs)
       .multiplyScalar(SHAKE_GAIN)
       .add(sm);
     const m = worldGravity.length();
@@ -108,6 +116,7 @@ export function useDeviceGravity() {
     sign.current = isIOS() ? -1 : 1;
     calibrated.current = false;
     smooth.current.set(0, -1, 0);
+    base.current.set(0, -1, 0);
     if (DM?.requestPermission) {
       DM.requestPermission()
         .then((r) => setStatus(r === "granted" ? "on" : "denied"))
