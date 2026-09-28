@@ -7,10 +7,22 @@ export const SYNTH = {
    * Each cable reads where IT hangs: its middle behind its plugs (fallen back)
    * → D Lydian, level with them → E7#9, out in front → low Bb. Depth is
    * measured as a fraction (−1..1) of how far that cable's slack can reach. */
-  /** Below this much depth it's the upright chord (E7#9). */
-  depthDead: 0.25,
+  /**
+   * Below this much depth it's the upright chord (E7#9). Wide on purpose: a
+   * phone held "upright" in the hand leans back a good way, so the cables sag
+   * back a bit — that should still land in E7#9.
+   */
+  depthDead: 0.45,
   /** At/above this much depth it's fully the flat chord (D Lydian / Bb). */
-  depthFull: 0.7,
+  depthFull: 0.85,
+  /**
+   * Chord pull: the three chords are magnets too. Between the upright chord
+   * and a flat one, a voice lingers near each chord and moves quickly through
+   * the middle, so you can land in E7#9 as solidly as at the ends. Powered by
+   * acceleration like the note magnet (gentle = full pull, jolt = none).
+   * 0 = straight crossfade.
+   */
+  chordPull: 0.8,
   /**
    * Magnetic note centres. Along its path a voice's pitch is pulled gently
    * toward each note it passes (D Lydian scale tones on the D side, semitones

@@ -15,8 +15,11 @@ tap asks for motion access so the cables swing with the phone.
 - Cable i is always voice i, so each cable has one fixed path, and every path
   descends D Lydian → E7#9 → Bb: a cable only ever moves one way.
 - Depth = how far the cable's middle hangs in front of / behind its plugs, as a
-  fraction of its reach (`measureDepth` in `sway.ts`). Dead zone around level
-  holds E7#9 (`depthDead`); fully in the outer chord at `depthFull`.
+  fraction of its reach (`measureDepth` in `sway.ts`). A wide zone around level
+  holds E7#9 (`depthDead` 0.45 — a hand-held phone leans back); fully in the
+  outer chord at `depthFull`. The chords themselves are magnets (`chordPull`):
+  moving gently, voices linger at each chord and cross quickly between, so
+  E7#9 lands as solidly as the ends; a jolt makes it a straight crossfade.
 - Pitch glides continuously along the path, with a gentle magnetic pull at
   each note centre on the way (D Lydian scale tones on the D side, semitones
   on the Bb side): it lingers near each note and moves quickly between them.

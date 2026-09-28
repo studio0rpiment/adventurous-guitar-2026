@@ -24,13 +24,29 @@ export interface CableNote {
  * tones on the D side, semitones on the Bb side), or null at a pole (exact
  * chord tuning).
  */
+/** Acceleration → magnet power, on the parabola: 1 when gentle, 0 at a jolt. */
+export const magnetPower = (accel: number) =>
+  1 - Math.min(1, (accel / SYNTH.magnet.accelRef) ** 2);
+
+/** Smooth staircase between 0 and 1: n = 1 straight, bigger n lingers at both ends. */
+const linger = (u: number, n: number) => {
+  const a = u ** n;
+  const b = (1 - u) ** n;
+  return a / (a + b);
+};
+
 export function cableTarget(
   i: number,
   depth: number,
+  power = 0,
 ): { midi: number; bracket: [number, number] | null } {
   const home = chordMidi("hendrix", i);
   const back = depth < 0;
-  const w = clamp01((Math.abs(depth) - SYNTH.depthDead) / (SYNTH.depthFull - SYNTH.depthDead));
+  const raw = clamp01((Math.abs(depth) - SYNTH.depthDead) / (SYNTH.depthFull - SYNTH.depthDead));
+  // chords are magnets: linger near E7#9 and near the flat chord, pass quickly between
+  let w = raw > 0 && raw < 1 ? linger(raw, 1 + SYNTH.chordPull * 4 * power) : raw;
+  if (w < 0.01) w = 0;
+  if (w > 0.99) w = 1;
   const target = chordMidi(back ? "lydian" : "bb", i);
   const m = home + (target - home) * w;
   if (w >= 1 && back) return { midi: snapLydian(m), bracket: null };
@@ -58,18 +74,14 @@ export class PitchMagnet {
   midi = NaN;
 
   update(i: number, depth: number, accel: number, dt: number, out: CableNote): CableNote {
-    const { midi: target, bracket } = cableTarget(i, depth);
+    const power = magnetPower(accel);
+    const { midi: target, bracket } = cableTarget(i, depth, power);
     const M = SYNTH.magnet;
 
     let goal = target;
     if (bracket && M.strength > 0) {
       const [lo, hi] = bracket;
-      const u = (target - lo) / (hi - lo);
-      const power = 1 - Math.min(1, (accel / M.accelRef) ** 2);
-      const n = 1 + M.strength * 6 * power;
-      const a = u ** n;
-      const b = (1 - u) ** n;
-      goal = lo + (hi - lo) * (a / (a + b));
+      goal = lo + (hi - lo) * linger((target - lo) / (hi - lo), 1 + M.strength * 6 * power);
     }
 
     if (Number.isNaN(this.midi)) this.midi = goal;
