@@ -216,6 +216,19 @@ canvas {
   border-bottom-color: var(--ags-accent);
 }
 
+/* "Add to calendar" at the head of the Schedule route. */
+.ags-cal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.ags-cal__hint {
+  font-size: 0.72rem;
+  color: var(--ags-muted);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ags-panel {
     animation: none !important;

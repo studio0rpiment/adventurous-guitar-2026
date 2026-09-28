@@ -21,7 +21,9 @@ import {
   type ScheduleSlot,
   type SlotKind,
   type Venue,
-} from "@/config/sections";
+} from "./sections";
+// Relative, not "@/…": this module is also imported by vite.config.ts (via
+// config/calendar.ts) to build the .ics, and the config bundle has no alias.
 
 export interface FestivalEvent {
   /** Stable and DOM-id-safe — islands use it for their SVG path refs. */
@@ -30,6 +32,9 @@ export interface FestivalEvent {
   order: number;
   /** "Fri, Oct 9 · 2 PM", or the whole span for an ongoing item. */
   when: string;
+  /** The authored day ("Fri, Oct 9") — scheduled slots only; an ongoing
+   *  item's days live in its `when` span. */
+  date?: string;
   title: string;
   performers?: string;
   note?: string;
@@ -84,6 +89,7 @@ SCHEDULE.forEach((day) => {
         id: `${slug(day.date)}-${slug(block.venue)}-${i}`,
         order: ALL.length,
         when: `${day.date} · ${slot.time}`,
+        date: day.date,
         title: slot.title,
         performers: slot.performers,
         note: slot.note,

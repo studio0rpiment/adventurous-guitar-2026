@@ -1,10 +1,13 @@
 import { ONGOING, SCHEDULE } from "@/config/sections";
 import { SlotRow } from "@/ui/SlotRow";
+import { CalendarLink } from "@/ui/CalendarLink";
 
 /** Two-day schedule, organized by day then grouped by venue. */
 export function SchedulePanel() {
   return (
     <div>
+      <CalendarLink />
+
       {ONGOING.map((item) => (
         <section
           key={item.title}

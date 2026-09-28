@@ -30,6 +30,9 @@ export interface ScheduleSlot {
   /** Word on the link; the ↗ is the component's. Defaults to "Details". */
   linkLabel?: string;
   kind?: SlotKind;
+  /** Minutes to block off in the .ics when `time` gives no end. Calendar-only;
+   *  the displayed time stays as authored. See config/calendar.ts. */
+  duration?: number;
 }
 
 export interface VenueBlock {
@@ -97,6 +100,7 @@ export const SCHEDULE: ScheduleDay[] = [
           },
           {
             time: "7 PM",
+            duration: 120,
             title: "Concert",
             performers:
               "Chapman Welch / Thomas Helton, Sandy Ewen, Kevin Patton, DOUBLEMONO, Asher Lurie, Aisling Ma, Kelly Doyle, Brad Allen Williams",
