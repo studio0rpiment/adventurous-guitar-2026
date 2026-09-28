@@ -9,6 +9,7 @@ import { EXIT_LOCAL, JACK_AXIS, ROPE, TARGET_LEN } from "./constants";
 import { useConnection } from "@/three/connection/ConnectionContext";
 import { screenDistance } from "@/three/screen";
 import { createSticky, stickyGravity } from "@/physics/sticky";
+import { isLevelSideways } from "@/physics/gravity";
 import { cableSynth } from "@/audio/synth/engine";
 import { CableReading } from "@/audio/synth/sway";
 import { PitchMagnet, type CableNote } from "@/audio/synth/chord";
@@ -249,13 +250,14 @@ export function PatchCable({
     // level = E7#9, out in front = low Bb), and its motion sets the loudness.
     // Sticky cables let go one by one, so the chord changes voice by voice.
     // See audio/synth/chord.ts + config.ts.
-    reading.update(pts, restLen, dt);
+    reading.update(pts, restLen, dt, isLevelSideways());
     const voice = cableSynth.voice(voiceIndex);
     if (voice) {
       magnet.update(voiceIndex, reading.depth, reading.accel, dt, note);
       voice.setMidi(note.midi);
       voice.setTone(note.tone);
       voice.setLevel(reading.level);
+      cableSynth.reportLevel(voiceIndex, reading.level);
     }
 
     const mesh = cableRef.current;

@@ -8,6 +8,7 @@ import { TITLE_MODE } from "@/config/ui";
 import { InfoSections } from "@/ui/InfoSections";
 import { Footer } from "@/ui/Footer";
 import { PhysicsSoundToggle } from "@/ui/PhysicsSoundToggle";
+import { SoloController } from "@/ui/SoloController";
 
 /**
  * App shell. The 3D cable canvas is the base layer; the festival title, the
@@ -29,6 +30,7 @@ export default function App() {
         <Footer />
         {/* "Physics and sound" on phones, "Sound" on desktop. */}
         <PhysicsSoundToggle />
+        <SoloController />
       </NavProvider>
     </AudioProvider>
   );

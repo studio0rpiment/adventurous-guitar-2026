@@ -20,3 +20,10 @@ export function resetGravity(): void {
   worldGravity.copy(DEFAULT_GRAVITY);
   steadyGravity.copy(DEFAULT_GRAVITY);
 }
+
+const ROLL_LEVEL = Math.sin((8 * Math.PI) / 180);
+
+/** True when the phone isn't tilted sideways (within ~8°), whatever its forward/back tilt. */
+export function isLevelSideways(): boolean {
+  return Math.abs(steadyGravity.x) / Math.max(1e-9, steadyGravity.length()) < ROLL_LEVEL;
+}

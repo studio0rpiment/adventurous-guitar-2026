@@ -59,6 +59,14 @@ export const SYNTH = {
   /** Below this speed a cable is silent (gates out tiny settling jitter). */
   speedFloor: 0.08,
   /**
+   * Sideways lean → quieter. How far a cable's middle has swung left or right
+   * of its plugs (fraction of its reach, like depth): full volume up to
+   * leanDead, fading to silence at leanSilent — tilt the phone hard to either
+   * side and the cables go quiet.
+   */
+  leanDead: 0.2,
+  leanSilent: 0.8,
+  /**
    * How motion maps to loudness.
    *  - "direct":  motion = amplitude. Still = silent, more motion = louder.
    *  - "inverse": still = loudest, more motion = quieter; settling swells back.
@@ -79,6 +87,10 @@ export const SYNTH = {
   tauTone: 0.05,
   tauRise: 0.02,
   tauFall: 0.04,
+
+  /** Solo mode: level of the single voice, and its glide between scale steps (s). */
+  soloLevel: 1.4,
+  soloGlide: 0.03,
 
   /** Output. */
   master: 0.12,

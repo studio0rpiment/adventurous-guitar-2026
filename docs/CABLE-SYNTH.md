@@ -51,10 +51,28 @@ through). Knobs: `SYNTH.filter`, `speedFull`, `speedFloor`.
 ## Loudness
 
 Motion = amplitude: a still cable is silent (below `speedFloor`), louder the
-faster it moves (`response: "direct"`; "inverse" and "swell" still available).
+faster it moves. Sideways lean fades it: a cable swung far left or right of its
+plugs (phone rolled to either side) goes quiet, silent at `leanSilent`
+(`leanDead`/`leanSilent`; measured from each cable's own natural lopsided hang,
+learned while the phone is level side-to-side) (`response: "direct"`; "inverse" and "swell" still available).
 
 ## Files
 
 `src/audio/synth/` — `voicings.ts` (chords, harmonics, Lydian snap), `chord.ts`
 (cable depth → note), `sway.ts`, `CableVoice.ts`, `engine.ts` (master → lowpass
 → compressor; suspends when hidden / off), `config.ts` (all feel knobs).
+
+## Solo mode (`src/ui/SoloController.tsx`, `src/audio/synth/solo.ts`, `src/physics/flick.ts`)
+
+Hold a thumb down in the middle 60% of the screen (width and height) while
+sound is on: the chord crossfades out and a single square voice takes over on
+the E minor pentatonic (E G A B D, E2–E5, starting on E3). Flick the phone
+toward you to step down, away to step up; lift the thumb to go back to the
+chord. The solo voice sounds at the liveliest cable's level, so the cables
+still play it. A "Solo <note>" pill shows the current note.
+
+Flicks are read from the gyroscope's rotation rate about the phone's x axis
+(fallback: linear acceleration along the screen normal), caught on the first
+lobe with a threshold + hysteresis + refractory (`FLICK` in `flick.ts`:
+`onDegPerSec`, `offDegPerSec`, `refractoryMs`, `invert`). No DTW or trained
+model: two gestures on one axis don't need them, and both would add latency.

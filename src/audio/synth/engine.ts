@@ -8,11 +8,18 @@ import { CHORDS, UPPER_HARMONICS } from "@/audio/synth/voicings";
  * from their render tick — no React state in that path. The toggle UI
  * subscribes to on/off changes.
  *
- * Output: voices → master gain → gentle lowpass → compressor → speakers.
+ * Output: cable voices → chord bus ┐
+ *         solo voice ─────────────┴→ master gain → gentle lowpass → compressor → speakers.
+ * In solo mode the chord bus fades out and the solo voice takes over.
  */
 let ctx: AudioContext | null = null;
 let bus: GainNode | null = null;
+let chordBus: GainNode | null = null;
 let voices: CableVoice[] = [];
+let soloVoice: CableVoice | null = null;
+let soloOn = false;
+/** Each cable's latest loudness; the solo voice plays at the liveliest one. */
+const cableLevels: number[] = [];
 let on = false;
 const listeners = new Set<(on: boolean) => void>();
 
@@ -27,13 +34,16 @@ function build(c: AudioContext) {
   const comp = c.createDynamicsCompressor();
   master.connect(lp).connect(comp).connect(c.destination);
   bus = master;
+  chordBus = c.createGain();
+  chordBus.connect(master);
   // five chord tones + three upper harmonics, one voice per cable
   const chordTones = CHORDS.hendrix.length;
   const count = chordTones + UPPER_HARMONICS.length;
   voices = Array.from(
     { length: count },
-    (_, i) => new CableVoice(c, master, i < chordTones ? 1 : SYNTH.harmonicLevel),
+    (_, i) => new CableVoice(c, chordBus!, i < chordTones ? 1 : SYNTH.harmonicLevel),
   );
+  soloVoice = new CableVoice(c, master, SYNTH.soloLevel);
 }
 
 // Pause the audio thread when the tab is hidden (event-driven).
@@ -83,6 +93,32 @@ export const cableSynth = {
   /** The voice for cable i, or null when sound is off. */
   voice(i: number): CableVoice | null {
     return on ? voices[i % voices.length] ?? null : null;
+  },
+
+  /** Enter/leave solo mode: crossfade the chord bus out and the solo voice in. */
+  setSolo(active: boolean, midi?: number) {
+    if (!ctx || !chordBus || !soloVoice) return;
+    soloOn = active;
+    const t = ctx.currentTime;
+    chordBus.gain.setTargetAtTime(active ? 0 : 1, t, 0.06);
+    if (active && midi != null) soloVoice.setMidi(midi, 0.001);
+    if (!active) soloVoice.setLevel(0);
+  },
+
+  setSoloMidi(midi: number) {
+    soloVoice?.setMidi(midi, SYNTH.soloGlide);
+  },
+
+  /**
+   * Each cable reports its loudness every frame. In solo mode the solo voice
+   * sounds at the liveliest cable's level (reported once per frame, on cable 0).
+   */
+  reportLevel(i: number, level: number) {
+    cableLevels[i] = level;
+    if (!soloOn || !soloVoice || i !== 0) return;
+    let m = 0;
+    for (const l of cableLevels) if (l > m) m = l;
+    soloVoice.setLevel(m);
   },
 
   subscribe(f: (on: boolean) => void) {
