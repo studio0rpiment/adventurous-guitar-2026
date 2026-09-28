@@ -10,9 +10,8 @@ import { useConnection } from "@/three/connection/ConnectionContext";
 import { screenDistance } from "@/three/screen";
 import { createSticky, stickyGravity } from "@/physics/sticky";
 import { cableSynth } from "@/audio/synth/engine";
-import { createSwayState, measureDepth, measureSway, motionToLevel, type Sway } from "@/audio/synth/sway";
-import { cableNote, createNoteGrip, type CableNote } from "@/audio/synth/chord";
-import { SYNTH } from "@/audio/synth/config";
+import { CableReading } from "@/audio/synth/sway";
+import { PitchMagnet, type CableNote } from "@/audio/synth/chord";
 
 const ALIGN_PX = 150; // within this screen distance the plug turns to face the jack
 const SEAT_PX = 46; // within this it seats (plugs in)
@@ -109,11 +108,9 @@ export function PatchCable({
   const camRight = useMemo(() => new THREE.Vector3(), []);
   const camUp = useMemo(() => new THREE.Vector3(), []);
   const swayVel = useMemo(() => new THREE.Vector3(), []);
-  const swayState = useMemo(createSwayState, []);
-  const sway = useMemo<Sway>(() => ({ mag: 0 }), [])
-  const note = useMemo<CableNote>(() => ({ midi: 0, tone: 1, slipped: false }), []);
-  const grip = useMemo(createNoteGrip, []);
-  const slipUntil = useRef(0);
+  const reading = useMemo(() => new CableReading(), []);
+  const note = useMemo<CableNote>(() => ({ midi: 0, tone: 1 }), []);
+  const magnet = useMemo(() => new PitchMagnet(), []);
   // Each cable is its own creature: its own weight (heavier = slower, thicker)
   // and its own grip on the last pull it settled under (physics/sticky.ts).
   const sticky = useMemo(() => createSticky(voiceIndex), [voiceIndex]);
@@ -252,16 +249,13 @@ export function PatchCable({
     // level = E7#9, out in front = low Bb), and its motion sets the loudness.
     // Sticky cables let go one by one, so the chord changes voice by voice.
     // See audio/synth/chord.ts + config.ts.
-    measureSway(pts, swayState, sway);
+    reading.update(pts, restLen, dt);
     const voice = cableSynth.voice(voiceIndex);
     if (voice) {
-      cableNote(voiceIndex, measureDepth(pts, restLen), grip, note);
-      // a slip glides a touch slower than normal tracking, so it reads as sliding off
-      const now = performance.now();
-      if (note.slipped) slipUntil.current = now + SYNTH.tauSlip * 3000;
-      voice.setMidi(note.midi, now < slipUntil.current ? SYNTH.tauSlip : SYNTH.tauPitch);
+      magnet.update(voiceIndex, reading.depth, reading.accel, dt, note);
+      voice.setMidi(note.midi);
       voice.setTone(note.tone);
-      voice.setLevel(motionToLevel(sway.mag));
+      voice.setLevel(reading.level);
     }
 
     const mesh = cableRef.current;

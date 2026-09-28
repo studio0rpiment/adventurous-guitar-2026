@@ -17,10 +17,13 @@ tap asks for motion access so the cables swing with the phone.
 - Depth = how far the cable's middle hangs in front of / behind its plugs, as a
   fraction of its reach (`measureDepth` in `sway.ts`). Dead zone around level
   holds E7#9 (`depthDead`); fully in the outer chord at `depthFull`.
-- `travel: "smooth"` (default) glides continuously along the path; `"steps"` walks note by note — D Lydian scale tones on the D side,
-  semitones on the Bb side. While gliding, voices snag on those note points and
-  hold until pulled past a random catch, then slip on (`noteStickiness`,
-  `catchMin`/`catchMax`, `snagRadius`, `tauSlip`). D Lydian non-chord tones (E, B)
+- Pitch glides continuously along the path, with a gentle magnetic pull at
+  each note centre on the way (D Lydian scale tones on the D side, semitones
+  on the Bb side): it lingers near each note and moves quickly between them.
+  The pull is powered by the cable's acceleration on a parabola — gentle
+  motion creeps note to note like a noodle on a table, a whip drains the pull
+  and flies straight through (`SYNTH.magnet`: `strength`, `follow`,
+  `accelRef`; `PitchMagnet` in `chord.ts`). D Lydian non-chord tones (E, B)
   sit lower (`nonChordLevel`).
 
 ## Sticky, weighted cables (`src/physics/sticky.ts`)
@@ -33,10 +36,19 @@ slowly and are drawn thicker. Shake always passes straight through.
 Knobs: `STICKY.stickiness` (0 = none, 2 = gooey), `releaseMinDeg`/`releaseMaxDeg`,
 `weightMin`/`weightMax`, `followRate`.
 
+## Reading the cables (`src/audio/synth/sway.ts`, `adaptiveLowpass.ts`)
+
+Everything the synth hears comes off each cable itself, every frame:
+depth (where it hangs → pitch/chord) and speed (how fast it's moving →
+loudness). Both pass through an adaptive low-pass whose cutoff rides a
+parabola (U-curve) on the cable's acceleration — `fcMin` when it's moving
+gently (slow feels slow), up to `fcMax` on a jolt (a whip snaps straight
+through). Knobs: `SYNTH.filter`, `speedFull`, `speedFloor`.
+
 ## Loudness
 
-Motion = amplitude: a still cable is silent; it speaks as it moves and rings out
-as it settles (`response: "direct"`; "inverse" and "swell" still available).
+Motion = amplitude: a still cable is silent (below `speedFloor`), louder the
+faster it moves (`response: "direct"`; "inverse" and "swell" still available).
 
 ## Files
 

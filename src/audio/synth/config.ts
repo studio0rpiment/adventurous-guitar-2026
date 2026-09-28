@@ -1,6 +1,6 @@
 /**
- * Feel knobs for the cable synth. Displacements are in world units, measured as
- * the cable's centre of mass away from where it has been resting lately.
+ * Feel knobs for the cable synth. Everything is read off the cables themselves
+ * (their depth and speed), in world units.
  */
 export const SYNTH = {
   /* ---- chord from the cable's own depth ----
@@ -12,32 +12,40 @@ export const SYNTH = {
   /** At/above this much depth it's fully the flat chord (D Lydian / Bb). */
   depthFull: 0.7,
   /**
-   * How a voice travels between chords:
-   *  - "steps":  walks note by note — through D Lydian scale tones on the
-   *              D side, by semitones on the Bb side.
-   *  - "smooth": glides continuously.
+   * Magnetic note centres. Along its path a voice's pitch is pulled gently
+   * toward each note it passes (D Lydian scale tones on the D side, semitones
+   * on the Bb side) and slowed there. The pull fades as the cable accelerates
+   * — same parabola as the reading filter — so gentle motion creeps past each
+   * note and a whip flies straight through. See chord.ts PitchMagnet.
    */
-  travel: "smooth" as "steps" | "smooth",
-  /**
-   * Sticky notes (with travel "smooth"): a gliding voice snags on the note
-   * points along its path — D Lydian scale tones on the D side, semitones on
-   * the Bb side — holds there until the glide has pulled past it by its catch
-   * (semitones, random per snag, scaled by noteStickiness), then slips on.
-   * 0 = pure glide.
-   */
-  noteStickiness: 1,
-  catchMin: 0.3,
-  catchMax: 1.0,
-  /** How close the glide must pass a note point to snag on it (semitones). */
-  snagRadius: 0.12,
-  /** Glide time when a voice slips off a note (seconds-ish). */
-  tauSlip: 0.12,
+  magnet: {
+    /** 0 = no pull (pure glide), 1 = strong (almost stepwise when moving gently). */
+    strength: 0.6,
+    /** How fast the pitch chases its (warped) target, per second. */
+    follow: 14,
+    /** Cable acceleration (world units / s²) at which the magnet lets go. */
+    accelRef: 20,
+  },
   /** Level of D Lydian non-chord tones (E, B) vs. chord tones (D F# C# G# A). */
   nonChordLevel: 0.45,
 
+  /* ---- reading the cable ---- */
+  /**
+   * Adaptive low-pass on everything read from a cable (depth → pitch, speed →
+   * loudness). Its cutoff rides a parabola on the cable's acceleration: slow
+   * motion is heard slowly, a jolt snaps through. See adaptiveLowpass.ts.
+   */
+  filter: {
+    fcMin: 0.8, // Hz — gentle motion: lazy, drifting
+    fcMax: 25, // Hz — hard jolt: immediate
+    accelRef: 30, // world units / s² that fully opens it
+  },
+
   /* ---- loudness ---- */
-  /** Total displacement that counts as "all the motion there is". */
-  dispMag: 1.0,
+  /** Cable speed (world units / s) that counts as full volume. */
+  speedFull: 3,
+  /** Below this speed a cable is silent (gates out tiny settling jitter). */
+  speedFloor: 0.08,
   /**
    * How motion maps to loudness.
    *  - "direct":  motion = amplitude. Still = silent, more motion = louder.
@@ -51,14 +59,14 @@ export const SYNTH = {
   /** Upper-harmonic cables (5–7) sit this much under the chord tones. */
   harmonicLevel: 0.55,
 
-  /** Seconds-ish smoothing (setTargetAtTime time constants). */
-  tauPitch: 0.05,
-  tauTone: 0.08,
-  tauRise: 0.08, // getting louder: quick, so motion speaks right away
-  tauFall: 0.6, // getting quieter: slow, so it rings out as the cable settles
-
-  /** How fast the "rest" position follows the cable (per frame, 0..1). */
-  restFollow: 0.02,
+  /**
+   * Seconds-ish de-zipper smoothing on the audio params. Kept tiny: the
+   * adaptive filter above already decides how fast things move.
+   */
+  tauPitch: 0.02,
+  tauTone: 0.05,
+  tauRise: 0.02,
+  tauFall: 0.04,
 
   /** Output. */
   master: 0.12,

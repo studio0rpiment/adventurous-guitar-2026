@@ -1,70 +1,19 @@
 import type { RopePoint } from "@/three/cable/verlet";
 import { SYNTH } from "@/audio/synth/config";
-
-/** Per-cable memory: where it has been resting lately. */
-export interface SwayState {
-  rx: number;
-  ry: number;
-  rz: number;
-  primed: boolean;
-}
-
-export const createSwayState = (): SwayState => ({ rx: 0, ry: 0, rz: 0, primed: false });
-
-export interface Sway {
-  /** Total displacement from rest, 0..1 — drives loudness. */
-  mag: number;
-}
+import { AdaptiveLowpass } from "@/audio/synth/adaptiveLowpass";
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 /**
- * How far a cable's centre of mass sits from where it has been resting. The rest
- * point is a slow follower of the centre, so a cable that settles somewhere new
- * (replugged, phone tilted) reads as still again after a moment. Pure: reads
- * the rope, updates `s` in place.
+ * How fast the cable is actually moving right now: the mean speed of its
+ * interior points (world units / s), straight from the Verlet state (p − prev
+ * is this step's motion).
  */
-export function measureSway(pts: RopePoint[], s: SwayState, out: Sway): Sway {
-  let cx = 0;
-  let cy = 0;
-  let cz = 0;
+export function measureSpeed(pts: RopePoint[], dt: number): number {
   const n = pts.length;
-  for (let i = 1; i < n - 1; i++) {
-    cx += pts[i].p.x;
-    cy += pts[i].p.y;
-    cz += pts[i].p.z;
-  }
-  const k = 1 / Math.max(1, n - 2);
-  cx *= k;
-  cy *= k;
-  cz *= k;
-
-  if (!s.primed) {
-    s.rx = cx;
-    s.ry = cy;
-    s.rz = cz;
-    s.primed = true;
-  }
-  const dx = cx - s.rx;
-  const dy = cy - s.ry;
-  const dz = cz - s.rz;
-  s.rx += dx * SYNTH.restFollow;
-  s.ry += dy * SYNTH.restFollow;
-  s.rz += dz * SYNTH.restFollow;
-
-  out.mag = clamp(Math.hypot(dx, dy, dz) / SYNTH.dispMag, 0, 1);
-  return out;
-}
-
-/** Motion (0..1) → loudness (0..1), per SYNTH.response. */
-export function motionToLevel(m: number): number {
-  if (SYNTH.response === "direct") return Math.pow(m, 1 / SYNTH.responseCurve);
-  if (SYNTH.response === "swell") {
-    // 0 at rest, peak at m = 0.25, easing down toward wild motion
-    const t = m / 0.25;
-    return t <= 1 ? Math.pow(t, 0.7) : Math.pow(1 - (m - 0.25) / 0.75, SYNTH.responseCurve);
-  }
-  return 1 - Math.pow(m, 1 / SYNTH.responseCurve);
+  let s = 0;
+  for (let i = 1; i < n - 1; i++) s += pts[i].p.distanceTo(pts[i].prev);
+  return s / Math.max(1, n - 2) / Math.max(dt, 1e-3);
 }
 
 /**
@@ -85,4 +34,47 @@ export function measureDepth(pts: RopePoint[], restLen: number): number {
   const slack = Math.max(0.1, restLen - gap);
   const reach = 0.6 * Math.sqrt((3 * Math.max(gap, 0.5) * slack) / 8);
   return clamp((cz - (a.z + b.z) / 2) / reach, -1, 1);
+}
+
+/** Motion (0..1) → loudness (0..1), per SYNTH.response. */
+export function motionToLevel(m: number): number {
+  if (SYNTH.response === "direct") return Math.pow(m, 1 / SYNTH.responseCurve);
+  if (SYNTH.response === "swell") {
+    // 0 at rest, peak at m = 0.25, easing down toward wild motion
+    const t = m / 0.25;
+    return t <= 1 ? Math.pow(t, 0.7) : Math.pow(1 - (m - 0.25) / 0.75, SYNTH.responseCurve);
+  }
+  return 1 - Math.pow(m, 1 / SYNTH.responseCurve);
+}
+
+/**
+ * Everything the synth hears from one cable, read off the cable itself each
+ * frame and passed through adaptive low-passes (slow when the cable is slow,
+ * snapping on a jolt — see adaptiveLowpass.ts):
+ *   - depth → which chord / where along the path (pitch)
+ *   - speed → loudness
+ * The cable's acceleration (change in speed) drives both filters.
+ */
+export class CableReading {
+  depth = 0;
+  level = 0;
+  private lastSpeed = 0;
+  /** The cable's acceleration right now (lightly smoothed), world units / s². */
+  accel = 0;
+  private depthF = new AdaptiveLowpass();
+  private speedF = new AdaptiveLowpass();
+
+  update(pts: RopePoint[], restLen: number, dt: number) {
+    const d = Math.max(dt, 1e-3);
+    const speed = measureSpeed(pts, d);
+    // acceleration, lightly smoothed so one noisy frame doesn't open the filter
+    const rawAccel = Math.abs(speed - this.lastSpeed) / d;
+    this.lastSpeed = speed;
+    this.accel += (rawAccel - this.accel) * 0.5;
+
+    this.depth = this.depthF.update(measureDepth(pts, restLen), this.accel, d, SYNTH.filter);
+    const s = this.speedF.update(speed, this.accel, d, SYNTH.filter);
+    const m = (s - SYNTH.speedFloor) / (SYNTH.speedFull - SYNTH.speedFloor);
+    this.level = motionToLevel(clamp(m, 0, 1));
+  }
 }

@@ -67,3 +67,12 @@ export function snapLydian(m: number): number {
 }
 
 export const isLydianChordTone = (m: number) => LYDIAN_CHORD_TONES.has(pc(m));
+
+/** The D Lydian scale tones just below/at and just above a pitch: [lo, hi). */
+export function lydianBracket(m: number): [number, number] {
+  let lo = Math.floor(m);
+  while (!LYDIAN_SCALE.includes(pc(lo))) lo--;
+  let hi = lo + 1;
+  while (!LYDIAN_SCALE.includes(pc(hi))) hi++;
+  return [lo, hi];
+}
